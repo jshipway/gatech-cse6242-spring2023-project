@@ -1,0 +1,86 @@
+{
+  "auto_3": {
+    "score": 0.79658,
+    "time": 8.282
+  },
+  "ball_tree_3": {
+    "score": 0.79674,
+    "time": 20.959
+  },
+  "kd_tree_3": {
+    "score": 0.79658,
+    "time": 8.535
+  },
+  "auto_5": {
+    "score": 0.81453,
+    "time": 8.469
+  },
+  "ball_tree_5": {
+    "score": 0.81453,
+    "time": 24.622
+  },
+  "kd_tree_5": {
+    "score": 0.81453,
+    "time": 8.951
+  },
+  "auto_8": {
+    "score": 0.83256,
+    "time": 9.085
+  },
+  "ball_tree_8": {
+    "score": 0.83251,
+    "time": 22.739
+  },
+  "kd_tree_8": {
+    "score": 0.83256,
+    "time": 9.012
+  },
+  "auto_10": {
+    "score": 0.83404,
+    "time": 13.76
+  },
+  "ball_tree_10": {
+    "score": 0.83415,
+    "time": 23.545
+  },
+  "kd_tree_10": {
+    "score": 0.83404,
+    "time": 8.979
+  },
+  "auto_12": {
+    "score": 0.83452,
+    "time": 9.157
+  },
+  "ball_tree_12": {
+    "score": 0.83445,
+    "time": 21.656
+  },
+  "kd_tree_12": {
+    "score": 0.83452,
+    "time": 8.667
+  },
+  "auto_15": {
+    "score": 0.83317,
+    "time": 9.19
+  },
+  "ball_tree_15": {
+    "score": 0.83312,
+    "time": 22.782
+  },
+  "kd_tree_15": {
+    "score": 0.83317,
+    "time": 9.02
+  },
+  "auto_20": {
+    "score": 0.83598,
+    "time": 9.426
+  },
+  "ball_tree_20": {
+    "score": 0.83612,
+    "time": 23.458
+  },
+  "kd_tree_20": {
+    "score": 0.83598,
+    "time": 9.451
+  }
+}

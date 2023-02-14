@@ -1,0 +1,434 @@
+{
+  "identity_lbfgs_3": {
+    "score": 0.83596,
+    "time": 1.103
+  },
+  "identity_sgd_3": {
+    "score": 0.83596,
+    "time": 12.435
+  },
+  "identity_adam_3": {
+    "score": 0.83596,
+    "time": 12.461
+  },
+  "logistic_lbfgs_3": {
+    "score": 0.83596,
+    "time": 7.306
+  },
+  "logistic_sgd_3": {
+    "score": 0.83596,
+    "time": 20.93
+  },
+  "logistic_adam_3": {
+    "score": 0.83596,
+    "time": 24.942
+  },
+  "tanh_lbfgs_3": {
+    "score": 0.83596,
+    "time": 14.973
+  },
+  "tanh_sgd_3": {
+    "score": 0.83596,
+    "time": 22.371
+  },
+  "tanh_adam_3": {
+    "score": 0.83596,
+    "time": 21.04
+  },
+  "relu_lbfgs_3": {
+    "score": 0.83596,
+    "time": 11.072
+  },
+  "relu_sgd_3": {
+    "score": 0.83596,
+    "time": 14.328
+  },
+  "relu_adam_3": {
+    "score": 0.83596,
+    "time": 33.057
+  },
+  "identity_lbfgs_5": {
+    "score": 0.83596,
+    "time": 0.947
+  },
+  "identity_sgd_5": {
+    "score": 0.83596,
+    "time": 10.607
+  },
+  "identity_adam_5": {
+    "score": 0.83596,
+    "time": 11.541
+  },
+  "logistic_lbfgs_5": {
+    "score": 0.83596,
+    "time": 28.209
+  },
+  "logistic_sgd_5": {
+    "score": 0.83596,
+    "time": 18.873
+  },
+  "logistic_adam_5": {
+    "score": 0.83596,
+    "time": 35.263
+  },
+  "tanh_lbfgs_5": {
+    "score": 0.83596,
+    "time": 40.35
+  },
+  "tanh_sgd_5": {
+    "score": 0.83596,
+    "time": 33.778
+  },
+  "tanh_adam_5": {
+    "score": 0.83596,
+    "time": 28.53
+  },
+  "relu_lbfgs_5": {
+    "score": 0.83596,
+    "time": 23.341
+  },
+  "relu_sgd_5": {
+    "score": 0.83596,
+    "time": 18.29
+  },
+  "relu_adam_5": {
+    "score": 0.83596,
+    "time": 20.671
+  },
+  "identity_lbfgs_10": {
+    "score": 0.83596,
+    "time": 1.19
+  },
+  "identity_sgd_10": {
+    "score": 0.83596,
+    "time": 10.82
+  },
+  "identity_adam_10": {
+    "score": 0.83596,
+    "time": 12.25
+  },
+  "logistic_lbfgs_10": {
+    "score": 0.83596,
+    "time": 59.644
+  },
+  "logistic_sgd_10": {
+    "score": 0.83596,
+    "time": 18.165
+  },
+  "logistic_adam_10": {
+    "score": 0.83596,
+    "time": 46.077
+  },
+  "tanh_lbfgs_10": {
+    "score": 0.83596,
+    "time": 70.998
+  },
+  "tanh_sgd_10": {
+    "score": 0.83596,
+    "time": 24.672
+  },
+  "tanh_adam_10": {
+    "score": 0.83596,
+    "time": 32.274
+  },
+  "relu_lbfgs_10": {
+    "score": 0.83596,
+    "time": 56.08
+  },
+  "relu_sgd_10": {
+    "score": 0.83596,
+    "time": 30.581
+  },
+  "relu_adam_10": {
+    "score": 0.83596,
+    "time": 26.927
+  },
+  "identity_lbfgs_15": {
+    "score": 0.83596,
+    "time": 1.588
+  },
+  "identity_sgd_15": {
+    "score": 0.83596,
+    "time": 11.411
+  },
+  "identity_adam_15": {
+    "score": 0.83596,
+    "time": 15.945
+  },
+  "logistic_lbfgs_15": {
+    "score": 0.83596,
+    "time": 81.712
+  },
+  "logistic_sgd_15": {
+    "score": 0.83596,
+    "time": 16.751
+  },
+  "logistic_adam_15": {
+    "score": 0.83596,
+    "time": 61.966
+  },
+  "tanh_lbfgs_15": {
+    "score": 0.83596,
+    "time": 102.611
+  },
+  "tanh_sgd_15": {
+    "score": 0.83596,
+    "time": 38.062
+  },
+  "tanh_adam_15": {
+    "score": 0.83596,
+    "time": 48.537
+  },
+  "relu_lbfgs_15": {
+    "score": 0.83596,
+    "time": 90.7
+  },
+  "relu_sgd_15": {
+    "score": 0.83596,
+    "time": 41.491
+  },
+  "relu_adam_15": {
+    "score": 0.83596,
+    "time": 51.55
+  },
+  "identity_lbfgs_20": {
+    "score": 0.83596,
+    "time": 2.103
+  },
+  "identity_sgd_20": {
+    "score": 0.83596,
+    "time": 11.395
+  },
+  "identity_adam_20": {
+    "score": 0.83596,
+    "time": 15.318
+  },
+  "logistic_lbfgs_20": {
+    "score": 0.83596,
+    "time": 116.313
+  },
+  "logistic_sgd_20": {
+    "score": 0.83596,
+    "time": 20.763
+  },
+  "logistic_adam_20": {
+    "score": 0.83596,
+    "time": 73.093
+  },
+  "tanh_lbfgs_20": {
+    "score": 0.83596,
+    "time": 121.556
+  },
+  "tanh_sgd_20": {
+    "score": 0.83596,
+    "time": 38.072
+  },
+  "tanh_adam_20": {
+    "score": 0.83596,
+    "time": 67.034
+  },
+  "relu_lbfgs_20": {
+    "score": 0.83596,
+    "time": 122.053
+  },
+  "relu_sgd_20": {
+    "score": 0.83596,
+    "time": 37.98
+  },
+  "relu_adam_20": {
+    "score": 0.83596,
+    "time": 49.017
+  },
+  "identity_lbfgs_30": {
+    "score": 0.83596,
+    "time": 2.588
+  },
+  "identity_sgd_30": {
+    "score": 0.83596,
+    "time": 13.534
+  },
+  "identity_adam_30": {
+    "score": 0.83596,
+    "time": 14.257
+  },
+  "logistic_lbfgs_30": {
+    "score": 0.83596,
+    "time": 15.652
+  },
+  "logistic_sgd_30": {
+    "score": 0.83596,
+    "time": 27.646
+  },
+  "logistic_adam_30": {
+    "score": 0.83596,
+    "time": 93.593
+  },
+  "tanh_lbfgs_30": {
+    "score": 0.83596,
+    "time": 171.655
+  },
+  "tanh_sgd_30": {
+    "score": 0.83596,
+    "time": 42.175
+  },
+  "tanh_adam_30": {
+    "score": 0.83596,
+    "time": 67.986
+  },
+  "relu_lbfgs_30": {
+    "score": 0.83596,
+    "time": 138.399
+  },
+  "relu_sgd_30": {
+    "score": 0.83596,
+    "time": 49.194
+  },
+  "relu_adam_30": {
+    "score": 0.83596,
+    "time": 67.136
+  },
+  "identity_lbfgs_50": {
+    "score": 0.83596,
+    "time": 4.033
+  },
+  "identity_sgd_50": {
+    "score": 0.83596,
+    "time": 20.046
+  },
+  "identity_adam_50": {
+    "score": 0.83596,
+    "time": 21.986
+  },
+  "logistic_lbfgs_50": {
+    "score": 0.83596,
+    "time": 17.037
+  },
+  "logistic_sgd_50": {
+    "score": 0.83596,
+    "time": 29.91
+  },
+  "logistic_adam_50": {
+    "score": 0.83596,
+    "time": 114.866
+  },
+  "tanh_lbfgs_50": {
+    "score": 0.83596,
+    "time": 226.671
+  },
+  "tanh_sgd_50": {
+    "score": 0.83596,
+    "time": 93.647
+  },
+  "tanh_adam_50": {
+    "score": 0.83596,
+    "time": 134.082
+  },
+  "relu_lbfgs_50": {
+    "score": 0.83596,
+    "time": 245.404
+  },
+  "relu_sgd_50": {
+    "score": 0.83596,
+    "time": 79.07
+  },
+  "relu_adam_50": {
+    "score": 0.83596,
+    "time": 149.245
+  },
+  "identity_lbfgs_100": {
+    "score": 0.83596,
+    "time": 5.771
+  },
+  "identity_sgd_100": {
+    "score": 0.83596,
+    "time": 24.776
+  },
+  "identity_adam_100": {
+    "score": 0.83596,
+    "time": 38.577
+  },
+  "logistic_lbfgs_100": {
+    "score": 0.83596,
+    "time": 38.446
+  },
+  "logistic_sgd_100": {
+    "score": 0.83596,
+    "time": 50.523
+  },
+  "logistic_adam_100": {
+    "score": 0.83596,
+    "time": 311.268
+  },
+  "tanh_lbfgs_100": {
+    "score": 0.83596,
+    "time": 476.029
+  },
+  "tanh_sgd_100": {
+    "score": 0.83596,
+    "time": 101.474
+  },
+  "tanh_adam_100": {
+    "score": 0.83596,
+    "time": 193.488
+  },
+  "relu_lbfgs_100": {
+    "score": 0.83597,
+    "time": 422.172
+  },
+  "relu_sgd_100": {
+    "score": 0.83596,
+    "time": 89.397
+  },
+  "relu_adam_100": {
+    "score": 0.83596,
+    "time": 254.237
+  },
+  "identity_lbfgs_150": {
+    "score": 0.83596,
+    "time": 10.096
+  },
+  "identity_sgd_150": {
+    "score": 0.83596,
+    "time": 39.686
+  },
+  "identity_adam_150": {
+    "score": 0.83596,
+    "time": 38.675
+  },
+  "logistic_lbfgs_150": {
+    "score": 0.83596,
+    "time": 43.485
+  },
+  "logistic_sgd_150": {
+    "score": 0.83596,
+    "time": 53.58
+  },
+  "logistic_adam_150": {
+    "score": 0.83596,
+    "time": 260.305
+  },
+  "tanh_lbfgs_150": {
+    "score": 0.83596,
+    "time": 547.593
+  },
+  "tanh_sgd_150": {
+    "score": 0.83596,
+    "time": 38.481
+  },
+  "tanh_adam_150": {
+    "score": 0.83596,
+    "time": 179.601
+  },
+  "relu_lbfgs_150": {
+    "score": 0.83596,
+    "time": 634.695
+  },
+  "relu_sgd_150": {
+    "score": 0.83596,
+    "time": 195.282
+  },
+  "relu_adam_150": {
+    "score": 0.83596,
+    "time": 250.233
+  }
+}

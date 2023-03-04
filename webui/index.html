@@ -1,0 +1,63 @@
+<html>
+<head>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+
+<script>
+    $( function() {
+      $( "#datepicker" ).datepicker();
+    } );
+
+    $(document).ready(function(){
+    $('input.timepicker').timepicker({});
+    });
+
+    function search() {
+        depart = document.getElementById("depart_airport").value;
+        arrive = document.getElementById("arrive_airport").value;        
+        console.log("searching...");
+        console.log(depart);
+        console.log(arrive);
+    }
+
+</script>
+
+
+
+</head>
+<body>
+<div class="header">
+    <h2>Flight Connections Risk Analyzer</h2>        
+</div>
+<br>
+<label for="depart_airport">Departing From:</label>
+<select name="depart_airport" id="depart_airport">
+  <option value="SAN">San Diego</option>
+</select>
+
+<label for="arrive_airport">Arriving To:</label>
+<select name="arrive_airport" id="arrive_airport">
+  <option value="BOS">Boston - Logan</option>
+  <option value="MIA">Miami - International</option>
+  <option value="LGA">New York - LaGuardia</option>
+  <option value="IAD">Washington DC - Dulles</option>
+</select>
+Departure Date:&nbsp;<input type="text" id="datepicker">
+Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
+<div class=tooltip>
+    <button type="submit" onclick="search()"><i class="fa fa-search"></i></button>
+    <span class="tooltiptext">Search</span>
+</div>
+<div class="footer">
+    <p>Georgia Tech CSE 6242  -  Spring 2023  -  Team 161</p>
+  </div>
+</body>
+</html>

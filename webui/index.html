@@ -31,10 +31,15 @@
 
     function search() {
         depart = document.getElementById("depart_airport").value;
+        depart_text = document.getElementById("depart_airport").options[document.getElementById('depart_airport').selectedIndex].text;
         arrive = document.getElementById("arrive_airport").value;        
+        arrive_text = document.getElementById("arrive_airport").options[document.getElementById('arrive_airport').selectedIndex].text;       
         console.log("searching...");
         console.log(depart);
         console.log(arrive);
+        tripheader = document.getElementById("trip_header");
+        tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + ", connecting through the following cities";
+        drawBarChart();
     }
 
 </script>
@@ -67,16 +72,37 @@ Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
 </div>
 <br>
 <br>
+<h3 id="trip_header"></h2>
 <div id="svg-container">
-<svg width="960" height="500"></svg>
+<!--svg width="960" height="500"></svg-->
 </div>
 
 <script>
 
-    var svg = d3.select("svg"),
-        margin = {top: 20, right: 20, bottom: 30, left: 100},
-        width = +svg.attr("width") - margin.left - margin.right,
-        height = +svg.attr("height") - margin.top - margin.bottom,
+    margin = {top: 20, right: 20, bottom: 30, left: 100},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+    var svg;
+
+    function drawBarChart () {
+    //var svg = d3.select("svg"),
+        //var svg = d3.select("body").append("svg"),
+
+        if (svg!=null) {
+            svg.selectAll("*").remove();
+            d3.select("body").select("svg").remove();
+        }
+
+        svg = d3.select("body")
+        .append("svg")
+        .attr("id", "line_chart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+
+
+        // width = +svg.attr("width") - margin.left - margin.right,
+        // height = +svg.attr("height") - margin.top - margin.bottom,
         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
     var y = d3.scaleBand()			// x = d3.scaleBand()	
@@ -158,6 +184,7 @@ Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
           .attr("dy", "0.32em")
           .text(function(d) { return d; });
     });
+    }
     
     </script>
 

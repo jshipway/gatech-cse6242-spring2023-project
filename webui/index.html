@@ -73,9 +73,6 @@ Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
 <br>
 <br>
 <h3 id="trip_header"></h2>
-<div id="svg-container">
-<!--svg width="960" height="500"></svg-->
-</div>
 
 <script>
 
@@ -86,21 +83,16 @@ Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
     var svg;
 
     function drawBarChart () {
-    //var svg = d3.select("svg"),
-        //var svg = d3.select("body").append("svg"),
 
-        if (svg!=null) {
-            svg.selectAll("*").remove();
+        if (svg!=null) {            
             d3.select("body").select("svg").remove();
         }
 
         svg = d3.select("body")
         .append("svg")
-        .attr("id", "line_chart")
+        .attr("id", "svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-
-
         // width = +svg.attr("width") - margin.left - margin.right,
         // height = +svg.attr("height") - margin.top - margin.bottom,
         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");

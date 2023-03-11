@@ -61,21 +61,17 @@ class QueryHandler(RequestHandler):
     self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
 
   def get(self):
-    sname = listToString(self.get_arguments('origin'))
-    strip_tags = listToString(self.get_arguments('strip_tags'))
-    headers = {'Content-Type': 'application/json'}
-    search_api_url = 'https://www.oneclickcompliance.com/api/json-search.php?search=1&user=SASdemo&results=20&start=1&type=and&query=' + sname
-    response = requests.get(search_api_url, headers=headers, timeout=5)
-    item_dict = response.json()
-    cnt=len(item_dict['results'])
-    i = 0
-    while (i < cnt):
-      item_dict['results'][i]['sentiment'] = sentiment_vader(item_dict['results'][i]['text'])
-      if strip_tags == "1":
-        item_dict['results'][i]['title'] = strip_html_tags(item_dict['results'][i]['title'])
-        item_dict['results'][i]['text'] = strip_html_tags(item_dict['results'][i]['text'])
-      i=i+1
-    self.write({'links':[],"name": "items","start": 0,"count": cnt, "items": item_dict['results'],"limit": 20,"version": 2})
+    origin = listToString(self.get_arguments('origin'))
+    print("Getting Destinatins for Origin: " + origin)
+        
+    flight_date = "8/5/2022"
+    df = getValidDestinations('faa', origin, flight_date)    
+    #print(df.head(5))
+    
+    dfjson = json.dumps(df.values.tolist())
+    print(dfjson)
+    
+    self.write({'links':[],"name": "items","start": 0,"count": len(df.index), "items": dfjson,"limit": 20,"version": 2})
 
   def options(self, *args):
     # no body

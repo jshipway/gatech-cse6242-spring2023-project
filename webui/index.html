@@ -45,20 +45,25 @@
     }
 
     function dateChanged() {
-      depart = document.getElementById("depart_airport").value;
-      console.log("dateChanged: " + depart)
-      // const userAction = async () => {        
-      //   const response = await fetch('http://localhost:3000/query?origin=' + depart);
-      //   const myJson = await response.json(); //extract JSON from the http response
-      //   console.log(myJson)
-      //}
-      getDestinations2()
     }
 
+    $(document).ready(function(){
+      getDestinations();
+    });
+
+
     function getDestinations() {
+      depart = document.getElementById("depart_airport").value;      
       $.get( "http://localhost:3000/query?origin=SAN", function( data ) {
         $( ".result" ).html( data );
-        console.writeline( "Load was performed." + data);
+        jsonObj = JSON.parse(data.items)
+        var select = document.getElementById("arrive_airport");
+        for (row of jsonObj) {
+          var option = document.createElement('option');
+          option.text = row[1] + " - " + row[0]
+          option.value = row[0];
+          arrive_airport.options.add(option, 0);
+        }
       });
     }
 
@@ -96,14 +101,6 @@
   <option value="SAN">San Diego - SAN</option>
   </select>
 </td>
-<td>
-Departure Date:
-</td>
-<td><input type="text" id="datepicker" size="10" onchange="dateChanged()"></td>
-<Td>Departure Time:</Td>
-<td><input type="text" id="timepicker" class="timepicker" size="10"></td>
-</tr>
-<tr>
 <Td><label for="arrive_airport">Arriving To:</label></Td>
 <Td><select name="arrive_airport" id="arrive_airport">
   <!--option value="BOS">Boston - Logan</option>
@@ -112,7 +109,14 @@ Departure Date:
   <option value="IAD">Washington DC - Dulles</option-->
 </select>
 </Td>
-<td colspan="4">
+</tr>
+<tr>
+<td>
+Departure Date:
+</td>
+<td><input type="text" id="datepicker" size="10" onchange="dateChanged()"></td>
+<Td>Departure Time:</Td>
+<td><input type="text" id="timepicker" class="timepicker" size="10">
 Minimum Allowed Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" maxlength="3" size="5">
 </td>
 </tr>

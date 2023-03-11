@@ -1,10 +1,33 @@
 # Imports
+import warnings
 import pymap3d as pm3
+try:
+    import geopandas as gpd
+    from shapely.geometry import Point
 
+    WORLD = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    US = WORLD[WORLD['name'] == 'United States of America'].dissolve(by='name')
+    COASTLINE = gpd.clip(gpd.read_file('utils_data/ne_50m_coastline.shp'), US)
+except:
+    warnings.warn('\nCould not import geopandas or shapely geometry. Will be unable to do any geographic '
+                  'centrality calculations without these libraries.\n')
+    COASTLINE = None
 
 _MILES_2_METERS = 1609.344
 _MILES_2_NMILES = 0.868976
 _MILES_2_FEET = 5280.
+_GEOGRAPHIC_CENTRALITY_CATEGORIES = {  # Key is value in miles less than which a coordinate is placed into that category
+    '20': 1,
+    '50': 2,
+    '100': 3,
+    '150': 4,
+    '200': 5,
+    '300': 6,
+    '500': 7,
+    '800': 8,
+    '1000': 9,
+    '_remainder': 10,
+}
 
 
 def distance_conversion(val, orig_unit, new_unit):
@@ -182,6 +205,64 @@ def get_direction_range(lat_lon0, lat_lon1):
     return az, rng_corrected
 
 
+def _min_distance(point, lines):
+    return lines.distance(point).min()
+
+
+def get_distance_to_coastline(lat, lon):
+    """
+    Gets the closest distance of this latitude/longitude coordinate to a coastline.
+    This can be used to determine geographic centrality.
+    :param lat: float, the latitude coordinate
+    :param lon: float, the longitude coordinate
+    :return: the distance (in miles) from the nearest coastline
+    """
+    if COASTLINE is None:
+        raise ImportError('Could not import the necessary packages (geopandas and shapely) to find the distance '
+                          'to the nearest coastline. Ensure packages are installed and try again.')
+
+    if not isinstance(lat, float):
+        raise TypeError('Expected latitude coordinate to be a float type, received {}'.format(type(lat)))
+    if not isinstance(lon, float):
+        raise TypeError('Expected longitude coordinate to be a float type, received {}'.format(type(lon)))
+
+    # Note: EPSG:4326 is the EPSG code for WGS 84 projection, the same one used for all other coordinate data
+    points_df = gpd.GeoDataFrame({'geometry': [Point(lon, lat)]}, crs='EPGS:4326')
+    points_df['min_dist_to_coast'] = points_df.geometry.apply(_min_distance, args=(COASTLINE,))
+
+    return points_df['min_dist_to_coast'].iloc[0]
+
+
+def get_geographic_centrality_category(lat, lon, category_map=None):
+    """
+    Gets the geographic centrality category for a specified latitude/longitude coordinate.
+
+    :param lat: float, the latitude value for the coordinate to calculate geographic centrality
+    :param lon: float, the longitude value for the coordinate to calculate geographic centrality
+    :param category_map: dict, an optional map for which category to put the distance parameter into, default=None
+    :return: the category to put the coordinate into for geographic centrality
+    """
+    dist = get_distance_to_coastline(lat, lon)
+    in_cat = False
+
+    if category_map is None:
+        category_map = _GEOGRAPHIC_CENTRALITY_CATEGORIES
+
+    dist_cat = None
+    for k, v in category_map.items():
+        if in_cat:  # Category already identified
+            continue
+
+        if 'remainder' in k.lower():
+            dist_cat = v  # Apply remainder category to distance
+            in_cat = True  # Category is now identified
+        elif float(k) > dist:
+            dist_cat = v  # Apply category to specific distance
+            in_cat = True  # Category is now identified
+
+    return dist_cat
+
+
 if __name__ == '__main__':
     # The following are a few examples of how to run these functions
     LAT0_FORMAT = '''N 40 51' 39.4612"'''
@@ -209,3 +290,11 @@ if __name__ == '__main__':
     LAT0_REFORMAT, LON0_REFORMAT = decimal_latlon_2_formatted(LATLON0_DEC[0], LATLON0_DEC[1])
     print('Lat/Long Coordinate 1 (converted from decimal back to formatted): {}, {}'
           .format(LAT0_REFORMAT, LON0_REFORMAT))
+
+    DIST2COAST = get_distance_to_coastline(LATLON0_DEC[0], LATLON0_DEC[1])
+    print('Distance of latitude/longitude coordinate 0 to nearest coastline: {}'.format(DIST2COAST))
+
+    GC_CAT = get_geographic_centrality_category(LATLON0_DEC[0], LATLON0_DEC[1])
+    print('Lat/Long coordinate 0 categorized into "{}" geographic centrality category'.format(GC_CAT))
+
+# LOOK AT THIS: https://gis.stackexchange.com/questions/364058/finding-closest-point-to-shapefile-coastline-python

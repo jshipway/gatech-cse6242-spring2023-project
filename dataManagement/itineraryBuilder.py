@@ -121,6 +121,7 @@ def getValidDestinations(db_name: str, ORIG: str, DATE: str):
                 WHERE
                     start.Dest = finish.Origin AND
                     finish.Dest <> start.Origin
+                ORDER BY CITY
         '''
 
     df = pd.read_sql_query(sql, conn)

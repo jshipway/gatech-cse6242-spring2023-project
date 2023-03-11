@@ -62,6 +62,37 @@ class QueryHandler(RequestHandler):
 
   def get(self):
     origin = listToString(self.get_arguments('origin'))
+    print("Getting Destinatins for Origin: " + origin)        
+    flight_date = "8/5/2022"
+    df = getValidDestinations('faa', origin, flight_date)        
+    dfjson = json.dumps(df.values.tolist())
+    print(dfjson)
+    self.write({'links':[],"name": "items","start": 0,"count": len(df.index), "items": dfjson,"limit": 20,"version": 2})
+
+  def options(self, *args):
+    # no body
+    # `*args` is for route with `path arguments` supports
+    self.set_status(204)
+    self.finish()
+  
+  def write_error(self,status_code,**kwargs):
+      if status_code == 500:
+         self.write({'links':[],"name": "items","start": 0,"count": 0, "items": [],"limit": 20,"version": 2})
+
+
+class FlightQueryHandler(RequestHandler):
+
+  def set_default_headers(self):
+    print("setting headers")
+    self.set_header("Access-Control-Allow-Origin", "*")
+    self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+    self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
+  def get(self):
+    origin = listToString(self.get_arguments('origin'))
+    dest = listToString(self.get_arguments('dest'))
+    date = listToString(self.get_arguments('date'))
+    minlayover = listToString(self.get_arguments('minlayover'))
     print("Getting Destinatins for Origin: " + origin)
         
     flight_date = "8/5/2022"
@@ -83,14 +114,38 @@ class QueryHandler(RequestHandler):
       if status_code == 500:
          self.write({'links':[],"name": "items","start": 0,"count": 0, "items": [],"limit": 20,"version": 2})
 
-# define end points
-def make_app():
-  urls = [(r"/query",QueryHandler)]
-  return Application(urls)
 
-# Start server  
-if __name__ == '__main__':
-    app = make_app()
-    app.listen(3000)
-    print("Flight Connections Risk Advisor, running on port 3000")
-    IOLoop.instance().start()
+
+
+
+
+
+
+
+# # define end points
+# def make_app():
+#   urls = [(r"/query",QueryHandler),(r"/flights",FlightQueryHandler) ]
+#   return Application(urls)
+
+# # Start server  
+# if __name__ == '__main__':
+#     app = make_app()
+#     app.listen(3000)
+#     print("Flight Connections Risk Advisor, running on port 3000")
+#     IOLoop.instance().start()
+    
+    
+    
+    
+def test():
+    origin = "SAN"
+    destination = "DTW"
+    flight_date = "8/5/2022"
+    df = getValidDestinations('faa', origin, flight_date)
+    print(df.head(5))
+            
+    df2 = queryFlights('faa', origin, destination, flight_date)
+    print(df2.head(5))
+    df3= itineraryBuilder(df2, 60)
+    print(df3.head(5))
+test()    

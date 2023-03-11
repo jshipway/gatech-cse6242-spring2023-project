@@ -34,13 +34,49 @@
         depart_text = document.getElementById("depart_airport").options[document.getElementById('depart_airport').selectedIndex].text;
         arrive = document.getElementById("arrive_airport").value;        
         arrive_text = document.getElementById("arrive_airport").options[document.getElementById('arrive_airport').selectedIndex].text;       
+        depart_date = $('#datepicker').val();
         console.log("searching...");
         console.log(depart);
         console.log(arrive);
+        console.log(depart_date)
         tripheader = document.getElementById("trip_header");
-        tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + ", connecting through the following cities";
+        tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + " on " + depart_date  + ", connecting through the following cities";
         drawBarChart();
     }
+
+    function dateChanged() {
+      depart = document.getElementById("depart_airport").value;
+      console.log("dateChanged: " + depart)
+      // const userAction = async () => {        
+      //   const response = await fetch('http://localhost:3000/query?origin=' + depart);
+      //   const myJson = await response.json(); //extract JSON from the http response
+      //   console.log(myJson)
+      //}
+      getDestinations2()
+    }
+
+    function getDestinations() {
+      $.get( "http://localhost:3000/query?origin=SAN", function( data ) {
+        $( ".result" ).html( data );
+        console.writeline( "Load was performed." + data);
+      });
+    }
+
+    function getDestinations2() {
+        $.ajax({
+        url: "localhost:3000/query?",
+        type: "GET",
+        crossDomain: true,
+        data: 'origin=SAN',
+        success: function (response) {
+          console.log(response);
+        },
+        error: function (xhr, status) {
+          console.log("error");
+        }
+      });
+    }
+
 
 </script>
 
@@ -52,22 +88,38 @@
     <h2>Flight Connections Risk Analyzer</h2>        
 </div>
 <br>
-<label for="depart_airport">Departing From:</label>
-<select name="depart_airport" id="depart_airport">
-  <option value="SAN">San Diego</option>
-</select>
-
-<label for="arrive_airport">Arriving To:</label>
-<select name="arrive_airport" id="arrive_airport">
-  <option value="BOS">Boston - Logan</option>
+<table>
+<tr>
+<td><label for="depart_airport">Departing From:</label></td>
+<td>
+  <select name="depart_airport" id="depart_airport">
+  <option value="SAN">San Diego - SAN</option>
+  </select>
+</td>
+<td>
+Departure Date:
+</td>
+<td><input type="text" id="datepicker" size="10" onchange="dateChanged()"></td>
+<Td>Departure Time:</Td>
+<td><input type="text" id="timepicker" class="timepicker" size="10"></td>
+</tr>
+<tr>
+<Td><label for="arrive_airport">Arriving To:</label></Td>
+<Td><select name="arrive_airport" id="arrive_airport">
+  <!--option value="BOS">Boston - Logan</option>
   <option value="MIA">Miami - International</option>
   <option value="LGA">New York - LaGuardia</option>
-  <option value="IAD">Washington DC - Dulles</option>
+  <option value="IAD">Washington DC - Dulles</option-->
 </select>
-Departure Date:&nbsp;<input type="text" id="datepicker">
-Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
+</Td>
+<td colspan="4">
+Minimum Allowed Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" maxlength="3" size="5">
+</td>
+</tr>
+</table>
+
 <div class=tooltip>
-    <button type="submit" onclick="search()"><i class="fa fa-search"></i></button>
+    <button type="submit" onclick="search()">Search For Flights <i class="fa fa-search"></i></button>
     <span class="tooltiptext">Search</span>
 </div>
 <br>
@@ -106,7 +158,7 @@ Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
         .rangeRound([0, width]);	// .rangeRound([height, 0]);
     
     var z = d3.scaleOrdinal()
-        .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+        .range(["#89cff0", "#0197f6", "#051094"]);
     
     d3.csv("data.csv", function(d, i, columns) {
       for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
@@ -143,17 +195,28 @@ Departure Time: &nbsp;<input type="text" id="timepicker" class="timepicker">
       g.append("g")
           .attr("class", "axis")
           .attr("transform", "translate(0,"+height+")")				// New line
-          .call(d3.axisBottom(x).ticks(null, "s"))					//  .call(d3.axisLeft(y).ticks(null, "s"))
-        .append("text")
-          .attr("y", 2)												//     .attr("y", 2)
-          .attr("x", x(x.ticks().pop()) + 0.5) 						//     .attr("y", y(y.ticks().pop()) + 0.5)
-          .attr("dy", "0.32em")										//     .attr("dy", "0.32em")
+          .call(d3.axisBottom(x).ticks(null, "s"));					//  .call(d3.axisLeft(y).ticks(null, "s"))
+        // .append("text")
+        //   .attr("y", 2)												//     .attr("y", 2)
+        //   .attr("x", x(x.ticks().pop()) + 0.5) 						//     .attr("y", y(y.ticks().pop()) + 0.5)
+        //   .attr("dy", "0.32em")										//     .attr("dy", "0.32em")
+        //   .attr("fill", "#000")
+        //   .attr("font-weight", "bold")
+        //   .attr("text-anchor", "start")
+        //   .text("Total Travel Duration (hrs)")
+        //   .attr("transform", "translate("+ (-width) +", -20)");   	// Newline
+
+        // add the x Axis label    
+        svg.append("text")
+          .attr("id", "x_axis_label") 
+          .attr("y", height + 50)												//     .attr("y", 2)
+          .attr("x", (width / 2) + 20) 						//     .attr("y", y(y.ticks().pop()) + 0.5)
+          //.attr("dy", "0.32em")										//     .attr("dy", "0.32em")
           .attr("fill", "#000")
-          .attr("font-weight", "bold")
-          .attr("text-anchor", "start")
-          .text("Travel Time (hrs)")
-          .attr("transform", "translate("+ (-width) +", -20)");   	// Newline
-    
+          //.attr("font-weight", "bold")
+          .attr("text-anchor", "middle")
+          .text("Total Travel Duration (hrs)")
+        
       var legend = g.append("g")
           .attr("font-family", "sans-serif")
           .attr("font-size", 10)

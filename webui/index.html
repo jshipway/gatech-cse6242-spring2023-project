@@ -35,6 +35,7 @@
         arrive = document.getElementById("arrive_airport").value;        
         arrive_text = document.getElementById("arrive_airport").options[document.getElementById('arrive_airport').selectedIndex].text;       
         depart_date = $('#datepicker').val();
+        min_connect_time = document.getElementById("min_connect_time").value;
         console.log("searching...");
         console.log(depart);
         console.log(arrive);
@@ -53,8 +54,8 @@
 
 
     function getDestinations() {
-      depart = document.getElementById("depart_airport").value;      
-      $.get( "http://localhost:3000/query?origin=SAN", function( data ) {
+      depart = document.getElementById("depart_airport").value;        
+      $.get( "http://localhost:3000/query?origin=" + depart, function( data ) {
         $( ".result" ).html( data );
         jsonObj = JSON.parse(data.items)
         var select = document.getElementById("arrive_airport");
@@ -67,21 +68,15 @@
       });
     }
 
-    function getDestinations2() {
-        $.ajax({
-        url: "localhost:3000/query?",
-        type: "GET",
-        crossDomain: true,
-        data: 'origin=SAN',
-        success: function (response) {
-          console.log(response);
-        },
-        error: function (xhr, status) {
-          console.log("error");
-        }
-      });
-    }
+    function getFlights(depart, arrive, date, connect_time) {
+        url = "http://localhost:3000/flights?depart=" + depart + "&arrive=" + arrive + "&date=" + date + "&connect_time=" + connect_time
+        encodedUri = encodeURI(url);
+        $.get(encodedUri, function( data ) {
+          $( ".result" ).html( data );
+          jsonObj = JSON.parse(data)
+        });
 
+    }
 
 </script>
 
@@ -102,12 +97,8 @@
   </select>
 </td>
 <Td><label for="arrive_airport">Arriving To:</label></Td>
-<Td><select name="arrive_airport" id="arrive_airport">
-  <!--option value="BOS">Boston - Logan</option>
-  <option value="MIA">Miami - International</option>
-  <option value="LGA">New York - LaGuardia</option>
-  <option value="IAD">Washington DC - Dulles</option-->
-</select>
+<Td>
+  <select name="arrive_airport" id="arrive_airport"></select>
 </Td>
 </tr>
 <tr>

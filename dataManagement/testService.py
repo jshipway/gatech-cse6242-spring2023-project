@@ -118,34 +118,29 @@ class FlightQueryHandler(RequestHandler):
 
 
 
+# define end points
+def make_app():
+  urls = [(r"/query",QueryHandler),(r"/flights",FlightQueryHandler) ]
+  return Application(urls)
 
-
-
-
-# # define end points
-# def make_app():
-#   urls = [(r"/query",QueryHandler),(r"/flights",FlightQueryHandler) ]
-#   return Application(urls)
-
-# # Start server  
-# if __name__ == '__main__':
-#     app = make_app()
-#     app.listen(3000)
-#     print("Flight Connections Risk Advisor, running on port 3000")
-#     IOLoop.instance().start()
+# Start server  
+if __name__ == '__main__':
+    app = make_app()
+    app.listen(3000)
+    print("Flight Connections Risk Advisor, running on port 3000")
+    IOLoop.instance().start()
     
     
-    
-    
-def test():
-    origin = "SAN"
-    destination = "DTW"
-    flight_date = "8/5/2022"
-    df = getValidDestinations('faa', origin, flight_date)
-    print(df.head(5))
-            
-    df2 = queryFlights('faa', origin, destination, flight_date)
-    print(df2.head(5))
-    df3= itineraryBuilder(df2, 60)
-    print(df3.head(5))
-test()    
+
+
+# origin = "SAN"
+# destination = "DTW"
+# flight_date = "8/5/2022"
+# df = getValidDestinations('faa', origin, flight_date)
+# print(df.head(5))
+        
+# df2 = queryFlights('faa', origin, destination, flight_date)
+# print(df2.head(5))
+# df3= itineraryBuilder(df2, 60)
+# print(df3.head(5))
+#test()    

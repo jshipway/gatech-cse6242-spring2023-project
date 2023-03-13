@@ -63,15 +63,17 @@ class FlightQueryHandler(RequestHandler):
     minlayover = int(listToString(self.get_arguments('connect_time')))
     print("Getting Flights for: -" + origin + "-" + dest + "-" + date_flight + "-" + str(minlayover) + "-")
      
-    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover)
+    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover, orderby='duration')
+    print(str(len(df.index)) + " records.")
 
-    df['ConnectCity'] = df['SECOND_LEG_ORIG_CITY'] + " - " + df['FIRST_LEG_AIRLINE']
+    df['ConnectCity'] = df['FIRST_LEG_AIRLINE'] + " " + df['FIRST_LEG_DEP_TIME'] + " " + df['SECOND_LEG_ORIG_CITY']
     df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
-    df['Connect Time'] = round(df['CONNECT_TIME']/60,1)
+    df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)
     df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,1)
+    #df['total'] = round(df['TRIP_TIME']/60,1)
     
-    df_output = df[['ConnectCity', 'Initial Flight', 'Connect Time', 'Final Flight']]
-    print(df_output.head(5))
+    df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight']]
+    print(df_output.head(len(df_output.index)))
     
     mydict = df_output.to_dict('records')
     dfjson = json.dumps(mydict)           

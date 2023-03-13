@@ -42,8 +42,8 @@
         console.log(depart_date)
         tripheader = document.getElementById("trip_header");
         tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + " on " + depart_date  + ", connecting through the following cities";
-        flights = getFlights(depart, arrive, depart_date, min_connect_time);
-        drawBarChart();
+        showFlights(depart, arrive, depart_date, min_connect_time);
+        
     }
 
     function dateChanged() {
@@ -69,15 +69,15 @@
       });
     }
 
-    function getFlights(depart, arrive, date, connect_time) {
+    function showFlights(depart, arrive, date, connect_time) {
         url = "http://localhost:3000/flights?origin=" + depart + "&dest=" + arrive + "&date=" + date + "&connect_time=" + connect_time
         encodedUri = encodeURI(url);
         $.get(encodedUri, function( data ) {
           $( ".result" ).html( data );
-          //jsonObj = JSON.parse(data)
-          console.log(data)
+          jsonObj = JSON.parse(data.items)
+          console.log(jsonObj)
+          drawBarChart(jsonObj);
         });
-
     }
 
 </script>
@@ -121,13 +121,13 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
 
 <script>
 
-    margin = {top: 20, right: 20, bottom: 30, left: 100},
+    margin = {top: 20, right: 20, bottom: 30, left: 160},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
     var svg;
 
-    function drawBarChart () {
+    function drawBarChart (data) {
 
         if (svg!=null) {            
             d3.select("body").select("svg").remove();
@@ -154,19 +154,20 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
     var z = d3.scaleOrdinal()
         .range(["#89cff0", "#0197f6", "#051094"]);
     
-    d3.csv("data.csv", function(d, i, columns) {
-      for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
-      d.total = t;
-      return d;
-    }, function(error, data) {
-      if (error) throw error;
+    // d3.csv("data.csv", function(d, i, columns) {
+    //   for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
+    //   d.total = t;
+    //   return d;
+    // }, function(error, data) {
+    //   if (error) throw error;
     
-      var keys = data.columns.slice(1);
+      //var keys = data.columns.slice(1);
+      keys = ['Initial Flight', 'Connection Layover', 'Final Flight']
     
       //data.sort(function(a, b) { return b.total - a.total; });
-      data.sort(function(a, b) { return a.total - b.total; });
+      //data.sort(function(a, b) { return a.total - b.total; });
       y.domain(data.map(function(d) { return d.ConnectCity; }));					// x.domain...
-      x.domain([0, d3.max(data, function(d) { return d.total; })]).nice();	// y.domain...
+      x.domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
       z.domain(keys);
     
       g.append("g")
@@ -228,7 +229,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
           //.attr("font-size", 10)
           .attr("dy", "0.32em")
           .text(function(d) { return d; });
-    });
+    //});
     }
     
     </script>

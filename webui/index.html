@@ -42,6 +42,7 @@
         console.log(depart_date)
         tripheader = document.getElementById("trip_header");
         tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + " on " + depart_date  + ", connecting through the following cities";
+        flights = getFlights(depart, arrive, depart_date, min_connect_time);
         drawBarChart();
     }
 
@@ -55,7 +56,7 @@
 
     function getDestinations() {
       depart = document.getElementById("depart_airport").value;        
-      $.get( "http://localhost:3000/query?origin=" + depart, function( data ) {
+      $.get( "http://localhost:3000/destinations?origin=" + depart, function( data ) {
         $( ".result" ).html( data );
         jsonObj = JSON.parse(data.items)
         var select = document.getElementById("arrive_airport");
@@ -69,11 +70,12 @@
     }
 
     function getFlights(depart, arrive, date, connect_time) {
-        url = "http://localhost:3000/flights?depart=" + depart + "&arrive=" + arrive + "&date=" + date + "&connect_time=" + connect_time
+        url = "http://localhost:3000/flights?origin=" + depart + "&dest=" + arrive + "&date=" + date + "&connect_time=" + connect_time
         encodedUri = encodeURI(url);
         $.get(encodedUri, function( data ) {
           $( ".result" ).html( data );
-          jsonObj = JSON.parse(data)
+          //jsonObj = JSON.parse(data)
+          console.log(data)
         });
 
     }
@@ -108,7 +110,7 @@ Departure Date:
 <td><input type="text" id="datepicker" size="10" onchange="dateChanged()"></td>
 <Td>Departure Time:</Td>
 <td><input type="text" id="timepicker" class="timepicker" size="10">
-Minimum Allowed Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" maxlength="3" size="5" value="45">
+Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" maxlength="3" size="5" value="45">
 </td>
 </tr>
 </table>

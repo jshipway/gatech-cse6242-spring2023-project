@@ -75,15 +75,19 @@
         $.get(encodedUri, function( data ) {
           $( ".result" ).html( data );
           jsonObj = JSON.parse(data.items)
-          console.log(jsonObj)
-          drawBarChart(jsonObj);
+          top_results = document.getElementById("top_results").value;
+          if (top_results==null) {
+            top_results = 10
+          } else {
+            top_results = parseInt(top_results)
+          }
+          const flights = jsonObj.slice(0, 9);
+          console.log(flights)
+          drawBarChart(flights);
         });
     }
 
 </script>
-
-
-
 </head>
 <body>
 <div class="header">
@@ -98,23 +102,23 @@
   <option value="SAN">San Diego - SAN</option>
   </select>
 </td>
-<Td><label for="arrive_airport">Arriving To:</label></Td>
-<Td>
+<Td colspan=2>
+  <label for="arrive_airport">Arriving To:</label>
   <select name="arrive_airport" id="arrive_airport"></select>
 </Td>
 </tr>
 <tr>
+<td>Departure Date:</td>
+<td><input type="text" id="datepicker" size="10" onchange="dateChanged()" value="8/5/2022"></td>
+<!--Td>Departure Time:</Td>
+<td><input type="text" id="timepicker" class="timepicker" size="10"-->
 <td>
-Departure Date:
-</td>
-<td><input type="text" id="datepicker" size="10" onchange="dateChanged()"></td>
-<Td>Departure Time:</Td>
-<td><input type="text" id="timepicker" class="timepicker" size="10">
 Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" maxlength="3" size="5" value="45">
+Display Top Results:&nbsp;<input type="text" id="top_results" maxlength="3" size="5" value="8">
 </td>
 </tr>
 </table>
-<button type="submit" onclick="search()">Search For Flights <i class="fa fa-search"></i></button>
+<button type="submit" onclick="search()">Search For Flights<i class="fa fa-search"></i></button>
 <br>
 <br>
 <h3 id="trip_header"></h2>
@@ -166,10 +170,13 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
     
       //data.sort(function(a, b) { return b.total - a.total; });
       //data.sort(function(a, b) { return a.total - b.total; });
-      y.domain(data.map(function(d) { return d.ConnectCity; }));					// x.domain...
+      y.domain(data.map(function(d) { return d.ConnectCity; }));					
       x.domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
       z.domain(keys);
     
+      st = d3.stack().keys(keys)(data)
+      console.log(st)
+
       g.append("g")
         .selectAll("g")
         .data(d3.stack().keys(keys)(data))
@@ -215,7 +222,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
         .data(keys.slice()) //.reverse())
         .enter().append("g")
         //.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-         .attr("transform", function(d, i) { return "translate(-50," + (height/2 - 225 + i * 20) + ")"; });
+         .attr("transform", function(d, i) { return "translate(25," + (height/2 - 225 + i * 20) + ")"; });
     
       legend.append("rect")
           .attr("x", width - 19)

@@ -154,6 +154,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
     var x = d3.scaleLinear()		// y = d3.scaleLinear()
         .rangeRound([0, width]);	// .rangeRound([height, 0]);
     
+    //blue scale
     var z = d3.scaleOrdinal()
         .range(["#89cff0", "#0197f6", "#051094"]);
     
@@ -166,7 +167,8 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
     
       var keys = data.columns.slice(1);
     
-      data.sort(function(a, b) { return b.total - a.total; });
+      //data.sort(function(a, b) { return b.total - a.total; });
+      data.sort(function(a, b) { return a.total - b.total; });
       y.domain(data.map(function(d) { return d.State; }));					// x.domain...
       x.domain([0, d3.max(data, function(d) { return d.total; })]).nice();	// y.domain...
       z.domain(keys);
@@ -208,6 +210,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
           .attr("id", "x_axis_label") 
           .attr("y", height + 50)												//     .attr("y", 2)
           .attr("x", (width / 2) + 20) 						//     .attr("y", y(y.ticks().pop()) + 0.5)
+          .attr("font-size", 10)
           //.attr("dy", "0.32em")										//     .attr("dy", "0.32em")
           .attr("fill", "#000")
           //.attr("font-weight", "bold")
@@ -215,14 +218,14 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
           .text("Total Travel Duration (hrs)")
         
       var legend = g.append("g")
-          .attr("font-family", "sans-serif")
+          .attr("font-family", "sans-serif")          
           .attr("font-size", 10)
           .attr("text-anchor", "end")
         .selectAll("g")
-        .data(keys.slice().reverse())
+        .data(keys.slice()) //.reverse())
         .enter().append("g")
         //.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-         .attr("transform", function(d, i) { return "translate(-50," + (height/2 + 100 + i * 20) + ")"; });
+         .attr("transform", function(d, i) { return "translate(-50," + (height/2 - 225 + i * 20) + ")"; });
     
       legend.append("rect")
           .attr("x", width - 19)
@@ -233,6 +236,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
       legend.append("text")
           .attr("x", width - 24)
           .attr("y", 9.5)
+          //.attr("font-size", 10)
           .attr("dy", "0.32em")
           .text(function(d) { return d; });
     });

@@ -114,11 +114,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
 </td>
 </tr>
 </table>
-
-<div class=tooltip>
-    <button type="submit" onclick="search()">Search For Flights <i class="fa fa-search"></i></button>
-    <span class="tooltiptext">Search</span>
-</div>
+<button type="submit" onclick="search()">Search For Flights <i class="fa fa-search"></i></button>
 <br>
 <br>
 <h3 id="trip_header"></h2>
@@ -169,7 +165,7 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
     
       //data.sort(function(a, b) { return b.total - a.total; });
       data.sort(function(a, b) { return a.total - b.total; });
-      y.domain(data.map(function(d) { return d.State; }));					// x.domain...
+      y.domain(data.map(function(d) { return d.Connect; }));					// x.domain...
       x.domain([0, d3.max(data, function(d) { return d.total; })]).nice();	// y.domain...
       z.domain(keys);
     
@@ -181,31 +177,24 @@ Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" ma
         .selectAll("rect")
         .data(function(d) { return d; })
         .enter().append("rect")
-          .attr("y", function(d) { return y(d.data.State); })	    //.attr("x", function(d) { return x(d.data.State); })
+          .attr("y", function(d) { return y(d.data.Connect); })	    //.attr("x", function(d) { return x(d.data.State); })
           .attr("x", function(d) { return x(d[0]); })			    //.attr("y", function(d) { return y(d[1]); })	
           .attr("width", function(d) { return x(d[1]) - x(d[0]); })	//.attr("height", function(d) { return y(d[0]) - y(d[1]); })
           .attr("height", y.bandwidth());						    //.attr("width", x.bandwidth());	
     
+      // create y axis
       g.append("g")
           .attr("class", "axis")
           .attr("transform", "translate(0,0)") 						//  .attr("transform", "translate(0," + height + ")")
           .call(d3.axisLeft(y));									//   .call(d3.axisBottom(x));
     
+      // create x axis
       g.append("g")
           .attr("class", "axis")
           .attr("transform", "translate(0,"+height+")")				// New line
           .call(d3.axisBottom(x).ticks(null, "s"));					//  .call(d3.axisLeft(y).ticks(null, "s"))
-        // .append("text")
-        //   .attr("y", 2)												//     .attr("y", 2)
-        //   .attr("x", x(x.ticks().pop()) + 0.5) 						//     .attr("y", y(y.ticks().pop()) + 0.5)
-        //   .attr("dy", "0.32em")										//     .attr("dy", "0.32em")
-        //   .attr("fill", "#000")
-        //   .attr("font-weight", "bold")
-        //   .attr("text-anchor", "start")
-        //   .text("Total Travel Duration (hrs)")
-        //   .attr("transform", "translate("+ (-width) +", -20)");   	// Newline
 
-        // add the x Axis label    
+        // add the x axis label    
         svg.append("text")
           .attr("id", "x_axis_label") 
           .attr("y", height + 50)												//     .attr("y", 2)

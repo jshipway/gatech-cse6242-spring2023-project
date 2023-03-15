@@ -77,11 +77,11 @@
           jsonObj = JSON.parse(data.items)
           top_results = document.getElementById("top_results").value;
           if (top_results==null) {
-            top_results = 10
+            top_results = 8
           } else {
             top_results = parseInt(top_results)
           }
-          const flights = jsonObj.slice(0, 9);
+          const flights = jsonObj.slice(0, top_results);
           console.log(flights)
           drawBarChart(flights);
         });

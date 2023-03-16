@@ -16,7 +16,7 @@ function ready(error, us, airports, flights) {
         d3.select("body").select("#svgmap").remove();
     }
 
-    var svgmap = d3.select("body").append("svg")
+    svgmap = d3.select("body").append("svg")
     .attr("id", "svgmap")
     .attr("width", width + margin.left + margin.right)    
     .attr("height", height + margin.top + margin.bottom + 100)

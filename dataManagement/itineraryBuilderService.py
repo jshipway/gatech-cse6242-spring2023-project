@@ -70,14 +70,18 @@ class FlightQueryHandler(RequestHandler):
     df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
     df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)
     df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,1)
-    #df['total'] = round(df['TRIP_TIME']/60,1)
+    df['Total Duration'] = round(df['TRIP_TIME']/60,1)
+        
+    #converting timestamp columns to json generates error, removing them for now
+    df.drop(list(df.filter(regex = 'TIMESTAMP')), axis = 1, inplace = True)
     
-    df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight']]
-    print(df_output.head(len(df_output.index)))
-    
-    mydict = df_output.to_dict('records')
+    #get a subset of columns to print in output windows
+    df_print = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight', 'Total Duration']]
+
+    print(df_print.head(len(df.index)))
+    mydict = df.to_dict('records')
     dfjson = json.dumps(mydict)           
-    self.write({'links':[],"name": "items","start": 0,"count": len(df_output.index), "items": dfjson,"limit": 20,"version": 2})
+    self.write({'links':[],"name": "items","start": 0,"count": len(df.index), "items": dfjson,"limit": 20,"version": 2})
 
   def options(self, *args):
     # no body

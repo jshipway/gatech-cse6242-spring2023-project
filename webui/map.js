@@ -1,5 +1,4 @@
-var svgmap;
-
+//uses svgmap, width, height, and margin global variables defined in globals.js
 function drawMap(flights) {
 
     d3.queue()
@@ -8,7 +7,6 @@ function drawMap(flights) {
         .defer(d3.csv, "./examples/flights.csv", typeFlight)
         .await(ready);
 }
-
 function ready(error, us, airports, flights) {
     if (error) throw error;
 

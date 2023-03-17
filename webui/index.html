@@ -71,7 +71,7 @@
           $( ".result" ).html( data );
           jsonObj = JSON.parse(data.items)
           top_results = document.getElementById("top_results").value;
-          if (top_results==null) {
+          if (top_results.length == 0) {
             top_results = 8
           } else {
             top_results = parseInt(top_results)
@@ -85,6 +85,7 @@
 
 </script>
 </head>
+
 <body>
 <div class="header">
     <h2>Flight Connections Risk Analyzer</h2>        

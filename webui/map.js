@@ -1,21 +1,42 @@
+var flight_array;
+var origin_val;
+var dest_val;
+
 //uses svgmap, width, height, and margin global variables defined in globals.js
-function drawMap(flights) {
+function drawMap(trips, origin, dest) {
+
+    flight_array = [];
+
+    for (const trip of trips) {
+        var flight1 = {};
+        var flight2 = {};
+        flight1.origin = trip.FIRST_LEG_ORIG;
+        flight1.destination = trip.FIRST_LEG_DEST;
+        flight2.origin = trip.SECOND_LEG_ORIG;
+        flight2.destination = trip.SECOND_LEG_DEST;
+        flight_array.push(flight1);
+        flight_array.push(flight2);
+      }
+
+    origin_val = origin;
+    dest_val = dest;
 
     d3.queue()
         .defer(d3.json, "./examples/us.json")
         .defer(d3.csv, "./examples/airports.csv", typeAirport)
-        .defer(d3.csv, "./examples/flights.csv", typeFlight)
+        //.defer(d3.csv, "./examples/flights.csv", typeFlight)
         .await(ready);
 }
-function ready(error, us, airports, flights) {
+function ready(error, us, airports) { //}, flights) {
     if (error) throw error;
 
-    if (svgmap!=null) {            
-        d3.select("body").select("#svgmap").remove();
+    if (svgmap!=null) {                    
+        d3.select("body").select("#svgmap").remove();        
     }
 
     svgmap = d3.select("body").append("svg")
     .attr("id", "svgmap")
+    .attr("x", margin.left)
     .attr("width", width + margin.left + margin.right)    
     .attr("height", height + margin.top + margin.bottom + 100)
 
@@ -34,11 +55,11 @@ function ready(error, us, airports, flights) {
     var voronoi = d3.voronoi()
     .extent([[-1, -1], [width + 1, height + 1]]);
 
-    flights = flights.slice(0, 30);
+    //flights = flights.slice(0, 30);
 
     var airportByIata = d3.map(airports, function(d) { return d.iata; });
 
-    flights.forEach(function(flight) {
+    flight_array.forEach(function(flight) {
         var source = airportByIata.get(flight.origin),
             target = airportByIata.get(flight.destination);
             source.arcs.coordinates.push([source, target]);
@@ -69,7 +90,15 @@ function ready(error, us, airports, flights) {
         .attr("class", "airport");
 
     airport.append("title")
-        .text(function(d) { return d.iata + "\n" + d.arcs.coordinates.length + " flights"; });
+        .text(function(d) { 
+            if (d.iata === origin_val) 
+                return d.iata + "\n" + d.arcs.coordinates.length + " outgoing flights"; 
+            else if (d.iata === dest_val) 
+                return d.iata + "\n" + d.arcs.coordinates.length + " incoming flights"; 
+            else 
+                return d.iata + "\n" + d.arcs.coordinates.length/2 + " incoming flights\n" + d.arcs.coordinates.length/2 + " outgoing flights";  
+            })
+            
 
     airport.append("path")
         .attr("class", "airport-arc")

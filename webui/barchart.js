@@ -81,7 +81,7 @@ function drawBarChart (data) {
       .data(keys.slice()) //.reverse())
       .enter().append("g")
       //.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-      .attr("transform", function(d, i) { return "translate(25," + (height/2 - 225 + i * 20) + ")"; });
+      .attr("transform", function(d, i) { return "translate(90," + (height/2 - 225 + i * 20) + ")"; });
   
     legend.append("rect")
         .attr("x", width - 19)

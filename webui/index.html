@@ -22,7 +22,7 @@
     } );
 
     $(document).ready(function(){
-    $('input.timepicker').timepicker({});
+      $('input.timepicker').timepicker({});
     });
 
     function search() {
@@ -32,10 +32,6 @@
         arrive_text = document.getElementById("arrive_airport").options[document.getElementById('arrive_airport').selectedIndex].text;       
         depart_date = $('#datepicker').val();
         min_connect_time = document.getElementById("min_connect_time").value;
-        console.log("searching...");
-        console.log(depart);
-        console.log(arrive);
-        console.log(depart_date)
         tripheader = document.getElementById("trip_header");
         tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + " on " + depart_date  + ", connecting through the following cities";
         showFlights(depart, arrive, depart_date, min_connect_time);        
@@ -57,9 +53,9 @@
         var select = document.getElementById("arrive_airport");
         for (row of jsonObj) {
           var option = document.createElement('option');
-          option.text = row[1] + " - " + row[0]
+          option.text = row[1] + " - " + row[0]          
           option.value = row[0];
-          arrive_airport.options.add(option, 0);
+          arrive_airport.options.add(option, undefined);
         }
       });
     }
@@ -79,7 +75,7 @@
           const flights = jsonObj.slice(0, top_results);
           console.log(flights)
           drawBarChart(flights);
-          drawMap(flights);
+          drawMap(flights, depart, arrive);
         });
     }
 

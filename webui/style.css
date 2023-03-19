@@ -56,10 +56,17 @@ form.example::after {
 }
 
 .tooltip {
-  position: relative;
-  display: inline-block;
-  /* border-bottom: 1px dotted black;  If you want dots under the hoverable text */
+  position: absolute;
+  background-color: "#666464";
+  border: solid;
+  border-width: "1px";
+  border-radius: "5px";
+  padding: "10px";
+  color: "#fff";
+  opacity: 0.95;
 }
+
+
 
 /* Tooltip text */
 .tooltip .tooltiptext {
@@ -82,6 +89,7 @@ form.example::after {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
 
 /* map styles */
 .land {

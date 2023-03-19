@@ -63,10 +63,12 @@ def itineraryBuilder(db_name: str,\
                     ['NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_ARR_TIME', 'SECOND_LEG_DEST_TZ']]
     
     for i, c in enumerate(cols_to_generate):
-        s = df[cols_to_read[i][0]] + 'T' + df[cols_to_read[i][1]].str.zfill(4)
-        df['placeholder'] = pd.to_datetime(s).dt.tz_localize(pytz.utc)
-        df[c] = df.apply(lambda x: x["placeholder"].tz_convert(x[cols_to_read[i][2]]), 1)
-        df.drop(['placeholder'], axis=1, inplace=True)
+        st = df[cols_to_read[i][0]] + 'T' + df[cols_to_read[i][1]].str.zfill(4)
+        timezip = zip(st, df[cols_to_read[i][2]])
+        df[c] = [pd.to_datetime(s).tz_localize(t) for s,t in timezip]
+        #df['placeholder'] = pd.to_datetime(s).dt.tz_localize(pytz.utc)
+        #df[c] = df.apply(lambda x: x["placeholder"].tz_convert(x[cols_to_read[i][2]]), 1)
+        #df.drop(['placeholder'], axis=1, inplace=True)
 
     first_leg_zip = zip(df['FIRST_LEG_ARR_TIMESTAMP'], df['FIRST_LEG_DEP_TIMESTAMP'])
     second_leg_zip = zip(df['SECOND_LEG_ARR_TIMESTAMP'], df['SECOND_LEG_DEP_TIMESTAMP'])

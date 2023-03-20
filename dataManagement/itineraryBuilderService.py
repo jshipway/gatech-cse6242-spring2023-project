@@ -61,25 +61,30 @@ class FlightQueryHandler(RequestHandler):
     dest = listToString(self.get_arguments('dest'))
     date_flight = listToString(self.get_arguments('date'))
     minlayover = int(listToString(self.get_arguments('connect_time')))
+    order = listToString(self.get_arguments('order')).lower()
+    print(order)
     print("Getting Flights for: -" + origin + "-" + dest + "-" + date_flight + "-" + str(minlayover) + "-")
      
-    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover, orderby='duration')
+    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover, orderby=order)
     print(str(len(df.index)) + " records.")
 
-    df['ConnectCity'] = df['FIRST_LEG_AIRLINE'] + " " + df['FIRST_LEG_DEP_TIME'] + " " + df['SECOND_LEG_ORIG_CITY']
+    df['ConnectCity'] = df['FIRST_LEG_AIRLINE'] + " thru: " +\
+        df['SECOND_LEG_ORIG_CITY'] + "\nDepart: " + df['FIRST_LEG_DEP_TIMESTAMP'].dt.strftime("%I:%M:%S %p") +\
+            "\nArrive: " + df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime("%I:%M:%S %p")
+    
     df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
     df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)
     df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,1)
-    df['Total Duration'] = round(df['TRIP_TIME']/60,1)
-        
-    #converting timestamp columns to json generates error, removing them for now
-    df.drop(list(df.filter(regex = 'TIMESTAMP')), axis = 1, inplace = True)
+    df['Total Flight Time'] = round(df['TRIP_TIME']/60,1)
+    df['Chance of Missed Connection'] = round(df['RISK_MISSED_CONNECTION'],3)
+    df['Time Lost if Missed'] = round(df['NEXT_FLIGHT_TIMELOSS']/60,1)
+    df['Itinerary Risk'] = round(df['TOTAL_RISK']/60,1)
     
-    #get a subset of columns to print in output windows
-    df_print = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight', 'Total Duration']]
-
-    print(df_print.head(len(df.index)))
-    mydict = df.to_dict('records')
+    df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
+                    'Total Flight Time','Chance of Missed Connection', 'Time Lost if Missed', 'Itinerary Risk']]
+    print(df_output.head(len(df_output.index)))
+    
+    mydict = df_output.to_dict('records')
     dfjson = json.dumps(mydict)           
     self.write({'links':[],"name": "items","start": 0,"count": len(df.index), "items": dfjson,"limit": 20,"version": 2})
 

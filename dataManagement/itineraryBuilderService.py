@@ -81,7 +81,7 @@ class FlightQueryHandler(RequestHandler):
     df['Itinerary Risk'] = round(df['TOTAL_RISK']/60,1)
     
     df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
-                    'Total Flight Time','Chance of Missed Connection', 'Time Lost if Missed', 'Itinerary Risk']]
+                    'Total Flight Time','Chance of Missed Connection', 'Time Lost if Missed', 'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST']]
     print(df_output.head(len(df_output.index)))
     
     mydict = df_output.to_dict('records')

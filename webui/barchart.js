@@ -43,7 +43,7 @@ function drawBarChart (data) {
                           .domain(riskScores)                                              
                           //.range(['#fef0d9', '#fdcc8a', '#fc8d59', '#d7301f'])
                           //changed lowest risk to a light green, the prior light beige color was not showing well on US map
-                          .range(['#7CFC00', '#fdcc8a', '#fc8d59', '#d7301f'])
+                          .range(['#AFE1AF', '#fdcc8a', '#fc8d59', '#d7301f'])
 
     keys = ['Initial Flight', 'Connection Layover', 'Final Flight']
 

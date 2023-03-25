@@ -66,11 +66,11 @@ function ready(error, us, airports) {
     for (flight of flight_array) {
         var segment = findObjectByAttributes(unique_segments, 'origin', flight.origin, 'destination', flight.destination);
         if (segment == null) {
+            origin = airportByIata.get(flight.origin);
+            destination = airportByIata.get(flight.destination);
             segment = {};
             segment.origin = flight.origin;
             segment.destination = flight.destination;
-            origin = airportByIata.get(flight.origin);
-            destination = airportByIata.get(flight.destination);
             segment.origin_latitude = origin.latitude;
             segment.origin_longitutde = origin.longitude;
             segment.destination_latitude = destination.latitude;
@@ -99,13 +99,8 @@ function ready(error, us, airports) {
         .attr("class", "state-borders")
         .attr("d", path);
 
-    // svgmap.append("path")
-    //     .datum({type: "MultiPoint", coordinates: airports})
-    //     .attr("class", "airport-dots")
-    //     .attr("d", path);
-
-    //draw airport dots, one by one 
-    var dotcolors = ["#b3cde0", "#0197f6", "#011f4b"];
+    //draw airport dots, one by one, prior version used a MultiPoint
+    
     svgmap.selectAll(".airport-dots")
     .data(airports)
     .enter().append("circle", ".airport-dots")
@@ -125,11 +120,11 @@ function ready(error, us, airports) {
     })
     .attr("fill", function(d) { 
         if (d.iata === origin_val) 
-            return dotcolors[0]; 
+            return airport_colors[0]; 
         else if (d.iata === dest_val) 
-            return dotcolors[2];  
+            return airport_colors[2];  
         else 
-            return dotcolors[1]; ;  
+            return airport_colors[1]; ;  
         })
     
 
@@ -149,22 +144,16 @@ function ready(error, us, airports) {
                 return d.iata + "\n" + d.arcs.coordinates.length/2 + " connecting flights";  
             })
             
-
-    airport.append("path")
-        .attr("class", "airport-arc")
-        .attr("d", function(d) { return path(d.arcs); });
-
-    // svg.selectAll("line")
-    // .data(data)
-    // .enter()
-    // .append("line")
-    // .attr("x1", d=>projection(d[0])[0])
-    // .attr("y1", d=>projection(d[0])[1])
-    // .attr("x2", d=>projection(d[1])[0])
-    // .attr("y2", d=>projection(d[1])[1])
-
-
-
+    //add routes to map
+    svgmap.selectAll("line")
+    .data(unique_segments)
+    .enter().append("line", ".airport-arc")
+    .attr("x1", d=>projection([d.origin_longitutde, d.origin_latitude])[0])
+    .attr("y1", d=>projection([d.origin_longitutde, d.origin_latitude])[1])
+    .attr("x2", d=>projection([d.destination_longitude, d.destination_latitude])[0])
+    .attr("y2", d=>projection([d.destination_longitude, d.destination_latitude])[1])
+    .attr("stroke-width", 2)    
+    .attr('stroke', function(d) { return riskScale(d.risk_score);}  )
 
     airport.append("path")
         .data(voronoi.polygons(airports.map(projection)))
@@ -173,15 +162,15 @@ function ready(error, us, airports) {
 
     //create legend    
     mapkeys = ['Origin', 'Connection', 'Destination'] //#005b96
-    var z = d3.scaleOrdinal().range(["#b3cde0", "#0197f6", "#011f4b"]);
-    z.domain(keys);
+    var z = d3.scaleOrdinal().range(airport_colors);
+    z.domain(mapkeys);
 
     var legend = svgmap.append("g")
         .attr("font-family", "sans-serif")          
         .attr("font-size", 10)
         .attr("text-anchor", "end")
       .selectAll("g")
-      .data(mapkeys.slice()) //.reverse())
+      .data(mapkeys.slice()) 
       .enter().append("g")
       .attr("transform", function(d, i) { return "translate(220," + (height/2 - 50 + i * 20) + ")"; });
 
@@ -193,8 +182,7 @@ function ready(error, us, airports) {
 
     legend.append("text")
         .attr("x", width - 24)
-        .attr("y", 9.5)
-        //.attr("font-size", 10)
+        .attr("y", 9.5)        
         .attr("dy", "0.32em")
         .text(function(d) { return d; });
 }

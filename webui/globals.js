@@ -9,3 +9,5 @@ circleSpacing = 40;
 
 var svg;
 var svgmap;
+
+var airport_colors = ["#b3cde0", "#0197f6", "#011f4b"];

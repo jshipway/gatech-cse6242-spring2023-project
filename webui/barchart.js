@@ -10,8 +10,6 @@ function drawBarChart (data) {
   .attr("id", "svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
-  // width = +svg.attr("width") - margin.left - margin.right,
-  // height = +svg.attr("height") - margin.top - margin.bottom,
   g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // define tooltip
@@ -37,9 +35,8 @@ function drawBarChart (data) {
       .rangeRound([0, width-legBuffer]);	// .rangeRound([height, 0]);
 
   //blue scale
-  var z = d3.scaleOrdinal()
-      .range(["#b3cde0", "#0197f6", "#011f4b"]);
-
+  var z = d3.scaleOrdinal().range(airport_colors);
+      
   var riskScores = data.map((d) => d['Itinerary Risk']).sort(function(a,b) {return a-b})
   //console.log(riskScores)
   //console.log((d) => d['Itinerary Risk'])
@@ -49,18 +46,8 @@ function drawBarChart (data) {
                           .domain(riskScores)
                           .range(['#fef0d9', '#fdcc8a', '#fc8d59', '#d7301f'])
 
-  // d3.csv("data.csv", function(d, i, columns) {
-  //   for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
-  //   d.total = t;
-  //   return d;
-  // }, function(error, data) {
-  //   if (error) throw error;
-
-    //var keys = data.columns.slice(1);
     keys = ['Initial Flight', 'Connection Layover', 'Final Flight']
 
-    //data.sort(function(a, b) { return b.total - a.total; });
-    //data.sort(function(a, b) { return a.total - b.total; });
     y.domain(data.map(function(d) { return d.ConnectCity; }));					
     x.domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
     z.domain(keys);
@@ -77,10 +64,10 @@ function drawBarChart (data) {
       .selectAll("rect")
       .data(function(d) { return d; })
       .enter().append("rect")
-        .attr("y", function(d) { return y(d.data.ConnectCity); })	    //.attr("x", function(d) { return x(d.data.State); })
-        .attr("x", function(d) { return x(d[0]); })			    //.attr("y", function(d) { return y(d[1]); })	
-        .attr("width", function(d) { return x(d[1]) - x(d[0]); })	//.attr("height", function(d) { return y(d[0]) - y(d[1]); })
-        .attr("height", y.bandwidth())						    //.attr("width", x.bandwidth());
+        .attr("y", function(d) { return y(d.data.ConnectCity); })	    
+        .attr("x", function(d) { return x(d[0]); })			    
+        .attr("width", function(d) { return x(d[1]) - x(d[0]); })	
+        .attr("height", y.bandwidth())						    
     
     var circles = g.append("g")
                   .attr("id", "risk_circles")
@@ -116,24 +103,22 @@ function drawBarChart (data) {
     // create y axis
     g.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(0,0)") 						//  .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisLeft(y));									//   .call(d3.axisBottom(x));
+        .attr("transform", "translate(0,0)") 						
+        .call(d3.axisLeft(y));									
 
     // create x axis
     g.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(0,"+height+")")				// New line
-        .call(d3.axisBottom(x).ticks(null, "s"));					//  .call(d3.axisLeft(y).ticks(null, "s"))
+        .attr("transform", "translate(0,"+height+")")				
+        .call(d3.axisBottom(x).ticks(null, "s"));					
 
       // add the x axis label    
       svg.append("text")
         .attr("id", "x_axis_label") 
-        .attr("y", height + 50)												//     .attr("y", 2)
-        .attr("x", (width / 2) + 20) 						//     .attr("y", y(y.ticks().pop()) + 0.5)
-        .attr("font-size", 10)
-        //.attr("dy", "0.32em")										//     .attr("dy", "0.32em")
-        .attr("fill", "#000")
-        //.attr("font-weight", "bold")
+        .attr("y", height + 50)												
+        .attr("x", (width / 2) + 20) 						
+        .attr("font-size", 10)        
+        .attr("fill", "#000")        
         .attr("text-anchor", "middle")
         .text("Total Travel Duration (hrs)")
       
@@ -142,9 +127,8 @@ function drawBarChart (data) {
         .attr("font-size", 10)
         .attr("text-anchor", "end")
       .selectAll("g")
-      .data(keys.slice()) //.reverse())
-      .enter().append("g")
-      //.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+      .data(keys.slice()) 
+      .enter().append("g")      
       .attr("transform", function(d, i) { return "translate(25," + (height/2 - 225 + i * 20) + ")"; });
 
     legend.append("rect")
@@ -156,13 +140,10 @@ function drawBarChart (data) {
     legend.append("text")
         .attr("x", width - 24)
         .attr("y", 9.5)
-        //.attr("font-size", 10)
         .attr("dy", "0.32em")
         .text(function(d) { return d; });
-  //});
-
-
-
+  
+        
     function showTooltip(d){
       var top = d3.event.clientY + 5
       var left = d3.event.clientX + 5 

@@ -23,23 +23,19 @@ function drawBarChart (data) {
                     .style("border-width", "1px")
                     .style("border-radius", "5px")
                     .style("padding", "10px")
-
-
     
-  var y = d3.scaleBand()			// x = d3.scaleBand()	
-      .rangeRound([0, height])	// .rangeRound([0, width])
+  var y = d3.scaleBand()			
+      .rangeRound([0, height])	
       .paddingInner(0.05)
       .align(0.1);
 
-  var x = d3.scaleLinear()		// y = d3.scaleLinear()
-      .rangeRound([0, width-legBuffer]);	// .rangeRound([height, 0]);
+  var x = d3.scaleLinear()		
+      .rangeRound([0, width-legBuffer]);	
 
   //blue scale
   var z = d3.scaleOrdinal().range(airport_colors);
       
   var riskScores = data.map((d) => d['Itinerary Risk']).sort(function(a,b) {return a-b})
-  //console.log(riskScores)
-  //console.log((d) => d['Itinerary Risk'])
 
   dataInspect = data
   riskScale = d3.scaleQuantile()
@@ -51,9 +47,6 @@ function drawBarChart (data) {
     y.domain(data.map(function(d) { return d.ConnectCity; }));					
     x.domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
     z.domain(keys);
-
-    st = d3.stack().keys(keys)(data)
-    console.log(st)
 
     g.append("g")
       .attr("id", "bars")

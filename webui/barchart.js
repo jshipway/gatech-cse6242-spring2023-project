@@ -11,6 +11,7 @@ function drawBarChart (data) {
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
 
   // define tooltip
   var tooltip = d3.select("body")
@@ -39,8 +40,10 @@ function drawBarChart (data) {
 
   dataInspect = data
   riskScale = d3.scaleQuantile()
-                          .domain(riskScores)
-                          .range(['#fef0d9', '#fdcc8a', '#fc8d59', '#d7301f'])
+                          .domain(riskScores)                                              
+                          //.range(['#fef0d9', '#fdcc8a', '#fc8d59', '#d7301f'])
+                          //changed lowest risk to a light green, the prior light beige color was not showing well on US map
+                          .range(['#7CFC00', '#fdcc8a', '#fc8d59', '#d7301f'])
 
     keys = ['Initial Flight', 'Connection Layover', 'Final Flight']
 

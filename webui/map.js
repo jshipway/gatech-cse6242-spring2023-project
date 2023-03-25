@@ -152,7 +152,7 @@ function ready(error, us, airports) {
     .attr("y1", d=>projection([d.origin_longitutde, d.origin_latitude])[1])
     .attr("x2", d=>projection([d.destination_longitude, d.destination_latitude])[0])
     .attr("y2", d=>projection([d.destination_longitude, d.destination_latitude])[1])
-    .attr("stroke-width", 2)    
+    .attr("stroke-width", 4)    
     .attr('stroke', function(d) { return riskScale(d.risk_score);}  )
 
     airport.append("path")

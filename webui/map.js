@@ -5,15 +5,17 @@ var dest_val;
 //uses svgmap, width, height, and margin global variables defined in globals.js
 function drawMap(trips, origin, dest) {
 
-    flight_array = [];
+    flight_array = [];    
 
     for (const trip of trips) {
         var flight1 = {};
         var flight2 = {};
         flight1.origin = trip.FIRST_LEG_ORIG;
         flight1.destination = trip.FIRST_LEG_DEST;
+        flight1.risk_score = trip['Itinerary Risk'];
         flight2.origin = trip.SECOND_LEG_ORIG;
         flight2.destination = trip.SECOND_LEG_DEST;
+        flight2.risk_score = trip['Itinerary Risk']
         flight_array.push(flight1);
         flight_array.push(flight2);
       }
@@ -43,10 +45,6 @@ function ready(error, us, airports) {
     .translate([width / 2 + 100, height / 2 + 50])
     .scale(1280);
 
-    var radius = d3.scaleSqrt()
-    .domain([0, 100])
-    .range([0, 14]);
-
     var path = d3.geoPath()
     .projection(projection)
     .pointRadius(3.0);
@@ -62,6 +60,31 @@ function ready(error, us, airports) {
             source.arcs.coordinates.push([source, target]);
             target.arcs.coordinates.push([target, source]);
     });
+
+    //get unique segments
+    var unique_segments = [];    
+    for (flight of flight_array) {
+        var segment = findObjectByAttributes(unique_segments, 'origin', flight.origin, 'destination', flight.destination);
+        if (segment == null) {
+            segment = {};
+            segment.origin = flight.origin;
+            segment.destination = flight.destination;
+            origin = airportByIata.get(flight.origin);
+            destination = airportByIata.get(flight.destination);
+            segment.origin_latitude = origin.latitude;
+            segment.origin_longitutde = origin.longitude;
+            segment.destination_latitude = destination.latitude;
+            segment.destination_longitude = destination.longitude;
+            segment.count = 1;
+            segment.risk_score = flight.risk_score;
+            unique_segments.push(segment)
+        } else {
+            //keep a running average of segment's risk score based on all the flights running through that path
+            segment.risk_score = ((segment.risk_score * segment.count) + flight.risk_score) / (segment.count + 1)
+            segment.count += 1;
+        }
+    }
+
 
     airports = airports
         .filter(function(d) { return d.arcs.coordinates.length; });
@@ -82,15 +105,15 @@ function ready(error, us, airports) {
     //     .attr("d", path);
 
     //draw airport dots, one by one 
-    var dotcolors = ["#89cff0", "#0197f6", "#051094"];
+    var dotcolors = ["#b3cde0", "#0197f6", "#011f4b"];
     svgmap.selectAll(".airport-dots")
     .data(airports)
     .enter().append("circle", ".airport-dots")
     .attr("r", function(d) { 
         if (d.iata === origin_val) 
-            return 8; 
+            return 9; 
         else if (d.iata === dest_val) 
-            return 8;  
+            return 9;  
         else 
             return 4; ;  
         })
@@ -131,14 +154,26 @@ function ready(error, us, airports) {
         .attr("class", "airport-arc")
         .attr("d", function(d) { return path(d.arcs); });
 
+    // svg.selectAll("line")
+    // .data(data)
+    // .enter()
+    // .append("line")
+    // .attr("x1", d=>projection(d[0])[0])
+    // .attr("y1", d=>projection(d[0])[1])
+    // .attr("x2", d=>projection(d[1])[0])
+    // .attr("y2", d=>projection(d[1])[1])
+
+
+
+
     airport.append("path")
         .data(voronoi.polygons(airports.map(projection)))
         .attr("class", "airport-cell")
         .attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; });
 
     //create legend    
-    mapkeys = ['Origin', 'Connection', 'Destination']
-    var z = d3.scaleOrdinal().range(["#89cff0", "#0197f6", "#051094"]);
+    mapkeys = ['Origin', 'Connection', 'Destination'] //#005b96
+    var z = d3.scaleOrdinal().range(["#b3cde0", "#0197f6", "#011f4b"]);
     z.domain(keys);
 
     var legend = svgmap.append("g")
@@ -148,14 +183,7 @@ function ready(error, us, airports) {
       .selectAll("g")
       .data(mapkeys.slice()) //.reverse())
       .enter().append("g")
-      //.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
       .attr("transform", function(d, i) { return "translate(220," + (height/2 - 50 + i * 20) + ")"; });
-
-    // legend.append("rect")
-    //     .attr("x", width - 19)
-    //     .attr("width", 19)
-    //     .attr("height", 19)
-    //     .attr("fill", z);
 
     legend.append("circle")
         .attr("x", width - 19)
@@ -169,9 +197,16 @@ function ready(error, us, airports) {
         //.attr("font-size", 10)
         .attr("dy", "0.32em")
         .text(function(d) { return d; });
-
-
 }
+
+function findObjectByAttributes(array, attribute1, value1, attribute2, value2) {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i][attribute1] === value1 && array[i][attribute2] === value2) {
+        return array[i];
+      }
+    }
+    return null;
+  }
 
 function typeAirport(d) {
   d[0] = +d.longitude;

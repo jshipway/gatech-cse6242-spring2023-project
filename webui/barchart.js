@@ -38,7 +38,7 @@ function drawBarChart (data) {
 
   //blue scale
   var z = d3.scaleOrdinal()
-      .range(["#89cff0", "#0197f6", "#051094"]);
+      .range(["#b3cde0", "#0197f6", "#011f4b"]);
 
   var riskScores = data.map((d) => d['Itinerary Risk']).sort(function(a,b) {return a-b})
   //console.log(riskScores)

@@ -106,11 +106,11 @@ function ready(error, us, airports) {
     .enter().append("circle", ".airport-dots")
     .attr("r", function(d) { 
         if (d.iata === origin_val) 
-            return 9; 
+            return 10; 
         else if (d.iata === dest_val) 
-            return 9;  
+            return 10;  
         else 
-            return 4; ;  
+            return 6; ;  
         })
     .attr("transform", function(d) {
       return "translate(" + projection([

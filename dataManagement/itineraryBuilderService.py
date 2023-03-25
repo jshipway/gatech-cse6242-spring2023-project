@@ -69,8 +69,8 @@ class FlightQueryHandler(RequestHandler):
     print(str(len(df.index)) + " records.")
 
     df['ConnectCity'] = df['FIRST_LEG_AIRLINE'] + " thru: " +\
-        df['SECOND_LEG_ORIG_CITY'] + "\nDepart: " + df['FIRST_LEG_DEP_TIMESTAMP'].dt.strftime("%I:%M:%S %p") +\
-            "\nArrive: " + df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime("%I:%M:%S %p")
+        df['SECOND_LEG_ORIG_CITY'] + "Dept: " + df['FIRST_LEG_DEP_TIMESTAMP'].dt.strftime("%I:%M %p") +\
+            "Arr: " + df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime("%I:%M %p")
     
     df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
     df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)

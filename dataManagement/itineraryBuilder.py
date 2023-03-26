@@ -36,78 +36,112 @@ def itineraryBuilder(db_name: str,\
        'overnight_bool_2', 'overnight_bool_3', 'FIRST_FLIGHT_DURATION',
        'SECOND_FLIGHT_DURATION', 'CONNECT_TIME', 'TRIP_TIME',
        'RISK_MISSED_CONNECTION', 'NEXT_FLIGHT_TIMELOSS', 'TOTAL_RISK' """
-      
+
     if orderby not in ['risk', 'duration']:
         raise ValueError('Please order by either "risk" or "duration".')
     
     df = queryFlights(db_name, ORIG, DEST, DATE, dep_no_earlier, dep_no_later, arr_no_earlier, arr_no_later)
+
+    if df.shape[0] > 0:
+        # only run the transformations below if flights are returned
     
-    tz = load_timezone_dictionary(timezone_location)
+        tz = load_timezone_dictionary(timezone_location)
 
-    pd.set_option('mode.chained_assignment', None)
+        pd.set_option('mode.chained_assignment', None)
 
-    df['FIRST_LEG_ORIG_TZ'] = df['FIRST_LEG_ORIG'].map(tz)
-    df['FIRST_LEG_DEST_TZ'] = df['FIRST_LEG_DEST'].map(tz)
-    df['SECOND_LEG_ORIG_TZ'] = df['SECOND_LEG_ORIG'].map(tz)
-    df['SECOND_LEG_DEST_TZ'] = df['SECOND_LEG_DEST'].map(tz)
+        df['FIRST_LEG_ORIG_TZ'] = df['FIRST_LEG_ORIG'].map(tz)
+        df['FIRST_LEG_DEST_TZ'] = df['FIRST_LEG_DEST'].map(tz)
+        df['SECOND_LEG_ORIG_TZ'] = df['SECOND_LEG_ORIG'].map(tz)
+        df['SECOND_LEG_DEST_TZ'] = df['SECOND_LEG_DEST'].map(tz)
 
-    cols_to_generate = ['FIRST_LEG_DEP_TIMESTAMP', 'FIRST_LEG_ARR_TIMESTAMP',\
-                        'SECOND_LEG_DEP_TIMESTAMP', 'SECOND_LEG_ARR_TIMESTAMP',\
-                        'NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP', 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP']
-    
-    cols_to_read = [['FIRST_LEG_DATE', 'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ORIG_TZ'],\
-                    ['FIRST_LEG_DATE', 'FIRST_LEG_ARR_TIME', 'FIRST_LEG_DEST_TZ'],\
-                    ['SECOND_LEG_DATE', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ORIG_TZ'],\
-                    ['SECOND_LEG_DATE', 'SECOND_LEG_ARR_TIME', 'SECOND_LEG_DEST_TZ'],\
-                    ['NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_DEP_TIME', 'SECOND_LEG_ORIG_TZ'],\
-                    ['NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_ARR_TIME', 'SECOND_LEG_DEST_TZ']]
-    
-    for i, c in enumerate(cols_to_generate):
-        st = df[cols_to_read[i][0]] + 'T' + df[cols_to_read[i][1]].str.zfill(4)
-        timezip = zip(st, df[cols_to_read[i][2]])
-        df[c] = [pd.to_datetime(s).tz_localize(t) for s,t in timezip]
-        #df['placeholder'] = pd.to_datetime(s).dt.tz_localize(pytz.utc)
-        #df[c] = df.apply(lambda x: x["placeholder"].tz_convert(x[cols_to_read[i][2]]), 1)
-        #df.drop(['placeholder'], axis=1, inplace=True)
+        cols_to_generate = ['FIRST_LEG_DEP_TIMESTAMP', 'FIRST_LEG_ARR_TIMESTAMP',\
+                            'SECOND_LEG_DEP_TIMESTAMP', 'SECOND_LEG_ARR_TIMESTAMP',\
+                            'NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP', 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP']
+        
+        cols_to_read = [['FIRST_LEG_DATE', 'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ORIG_TZ'],\
+                        ['FIRST_LEG_DATE', 'FIRST_LEG_ARR_TIME', 'FIRST_LEG_DEST_TZ'],\
+                        ['SECOND_LEG_DATE', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ORIG_TZ'],\
+                        ['SECOND_LEG_DATE', 'SECOND_LEG_ARR_TIME', 'SECOND_LEG_DEST_TZ'],\
+                        ['NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_DEP_TIME', 'SECOND_LEG_ORIG_TZ'],\
+                        ['NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_ARR_TIME', 'SECOND_LEG_DEST_TZ']]
+        
+        
+        for i, c in enumerate(cols_to_generate):
 
-    first_leg_zip = zip(df['FIRST_LEG_ARR_TIMESTAMP'], df['FIRST_LEG_DEP_TIMESTAMP'])
-    second_leg_zip = zip(df['SECOND_LEG_ARR_TIMESTAMP'], df['SECOND_LEG_DEP_TIMESTAMP'])
-    next_best_zip = zip(df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'], df['NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP'])
+            st = df[cols_to_read[i][0]] + 'T' + df[cols_to_read[i][1]].str.zfill(4)
 
-    df['overnight_bool_1'] = pd.Series([arr < dept for (arr, dept) in first_leg_zip]).astype(int)
-    df['overnight_bool_2'] = pd.Series([arr < dept for (arr, dept) in second_leg_zip]).astype(int)
-    df['overnight_bool_3'] = pd.Series([arr < dept for (arr, dept) in next_best_zip]).astype(int)
+            df['temp'] = pd.to_datetime(st)
 
-    df['FIRST_LEG_ARR_TIMESTAMP'] = df.apply(lambda x: x['FIRST_LEG_ARR_TIMESTAMP'] + pd.DateOffset(days=x['overnight_bool_1']), 1)
-    df['SECOND_LEG_ARR_TIMESTAMP'] = df.apply(lambda x: x['SECOND_LEG_ARR_TIMESTAMP'] + pd.DateOffset(days=x['overnight_bool_2']), 1)
-    df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] = df.apply(lambda x: x['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] + pd.DateOffset(days=x['overnight_bool_3']), 1)
+            #if c in ['FIRST_LEG_DEP_TIMESTAMP', 'SECOND_LEG_ARR_TIMESTAMP', 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP']:
+            if len(df[cols_to_read[i][2]].unique()) <= 1:
+                # in this case the tz is always the same, and the below is most efficient
+                # grabs the first row's entry for timezone to localize on
+                df[c] = df['temp'].dt.tz_localize(df[cols_to_read[i][2]][0])
+            else:
+                # in this case we use groupby to break up into segment with the same tz
+                # then we can apply the same idea above
+                df[c] = pd.DataFrame(df.groupby(cols_to_read[i][2]).apply(lambda x: x['temp'].dt.tz_localize(x.name))).reset_index().set_index('level_1')['temp'].sort_index()
+            
+        df.drop(columns=['temp'], inplace=True)
 
-    df['FIRST_FLIGHT_DURATION'] = df.apply(lambda x: x['FIRST_LEG_ARR_TIMESTAMP'] - x['FIRST_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
-    df['SECOND_FLIGHT_DURATION'] = df.apply(lambda x: x['SECOND_LEG_ARR_TIMESTAMP'] - x['SECOND_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
-    
-    df['CONNECT_TIME'] = (df.loc[:, 'SECOND_LEG_DEP_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
-    
-    df['TRIP_TIME'] = (df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_DEP_TIMESTAMP']).dt.total_seconds()/60
+        first_leg_zip = zip(df['FIRST_LEG_ARR_TIMESTAMP'], df['FIRST_LEG_DEP_TIMESTAMP'])
+        second_leg_zip = zip(df['SECOND_LEG_ARR_TIMESTAMP'], df['SECOND_LEG_DEP_TIMESTAMP'])
+        next_best_zip = zip(df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'], df['NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP'])
 
-    df = df.loc[df.loc[:, 'CONNECT_TIME'].between(tc, max_tc)]
+        df['overnight_bool_1'] = pd.Series([arr < dept for (arr, dept) in first_leg_zip]).astype(int)
+        df['overnight_bool_2'] = pd.Series([arr < dept for (arr, dept) in second_leg_zip]).astype(int)
+        df['overnight_bool_3'] = pd.Series([arr < dept for (arr, dept) in next_best_zip]).astype(int)
 
-    num_rows = df.shape[0]
+        df['FIRST_LEG_ARR_TIMESTAMP'] = df['FIRST_LEG_ARR_TIMESTAMP'] + df['overnight_bool_1'].astype('timedelta64[D]')
+        df['SECOND_LEG_ARR_TIMESTAMP'] = df['SECOND_LEG_ARR_TIMESTAMP'] + df['overnight_bool_2'].astype('timedelta64[D]')
+        df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] = df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] + df['overnight_bool_3'].astype('timedelta64[D]')
 
-    df['RISK_MISSED_CONNECTION'] = dummyMLResult(num_rows)
-    df['NEXT_FLIGHT_TIMELOSS'] = (df.loc[:, 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
+        df['FIRST_FLIGHT_DURATION'] = df.apply(lambda x: x['FIRST_LEG_ARR_TIMESTAMP'] - x['FIRST_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
+        df['SECOND_FLIGHT_DURATION'] = df.apply(lambda x: x['SECOND_LEG_ARR_TIMESTAMP'] - x['SECOND_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
+        
+        df['CONNECT_TIME'] = (df.loc[:, 'SECOND_LEG_DEP_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
+        
+        df['TRIP_TIME'] = (df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_DEP_TIMESTAMP']).dt.total_seconds()/60
 
-    df['TOTAL_RISK'] = df.loc[:, 'RISK_MISSED_CONNECTION'] * df.loc[:, 'NEXT_FLIGHT_TIMELOSS']
+        df = df.loc[df.loc[:, 'CONNECT_TIME'].between(tc, max_tc)]
 
-    if orderby == 'risk':
-        df.sort_values(by=['TOTAL_RISK'], inplace=True)
-        df.reset_index(drop=True, inplace=True)
-    
-    elif orderby == 'duration':
-        df.sort_values(by=['TRIP_TIME'], inplace=True)
-        df.reset_index(drop=True, inplace=True)
+        num_rows = df.shape[0]
+
+        df['RISK_MISSED_CONNECTION'] = dummyMLResult(num_rows)
+        df['NEXT_FLIGHT_TIMELOSS'] = (df.loc[:, 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
+
+        df['TOTAL_RISK'] = df.loc[:, 'RISK_MISSED_CONNECTION'] * df.loc[:, 'NEXT_FLIGHT_TIMELOSS']
+
+        if orderby == 'risk':
+            df.sort_values(by=['TOTAL_RISK'], inplace=True)
+            df.reset_index(drop=True, inplace=True)
+        
+        elif orderby == 'duration':
+            df.sort_values(by=['TRIP_TIME'], inplace=True)
+            df.reset_index(drop=True, inplace=True)
+
+    else:
+        # if there are no flights available in date/time range requested, return empty df with column names
+        cols = ['FIRST_LEG_AIRLINE', 'FIRST_LEG_ORIG', 'FIRST_LEG_ORIG_CITY',\
+                'FIRST_LEG_DEST', 'FIRST_LEG_DEST_CITY', 'FIRST_LEG_DATE',\
+                'FIRST_LEG_FLIGHT_NUM', 'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',\
+                'SECOND_LEG_AIRLINE', 'SECOND_LEG_ORIG', 'SECOND_LEG_ORIG_CITY',\
+                'SECOND_LEG_DEST', 'SECOND_LEG_DEST_CITY', 'SECOND_LEG_DATE',\
+                'SECOND_LEG_FLIGHT_NUM', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',\
+                'NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_DEP_TIME',\
+                'NEXT_BEST_SECOND_LEG_ARR_TIME', 'FIRST_LEG_ORIG_TZ',\
+                'FIRST_LEG_DEST_TZ', 'SECOND_LEG_ORIG_TZ', 'SECOND_LEG_DEST_TZ',\
+                'FIRST_LEG_DEP_TIMESTAMP', 'FIRST_LEG_ARR_TIMESTAMP',\
+                'SECOND_LEG_DEP_TIMESTAMP', 'SECOND_LEG_ARR_TIMESTAMP',\
+                'NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP',\
+                'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP', 'overnight_bool_1',\
+                'overnight_bool_2', 'overnight_bool_3', 'FIRST_FLIGHT_DURATION',\
+                'SECOND_FLIGHT_DURATION', 'CONNECT_TIME', 'TRIP_TIME',\
+                'RISK_MISSED_CONNECTION', 'NEXT_FLIGHT_TIMELOSS', 'TOTAL_RISK']
+        
+        df = pd.DataFrame(columns=cols)
 
     return df
-
 
 
 def queryFlights(db_name: str,\

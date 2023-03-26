@@ -5,6 +5,8 @@ function drawBarChart (data) {
       d3.select("body").select("svg").remove();
   }
 
+  document.getElementById("order_by_div").removeAttribute("hidden")
+
   svg = d3.select("body")
   .append("svg")
   .attr("id", "svg")
@@ -25,13 +27,13 @@ function drawBarChart (data) {
                     .style("border-radius", "5px")
                     .style("padding", "10px")
     
-  var y = d3.scaleBand()			
-      .rangeRound([0, height])	
-      .paddingInner(0.05)
+  var y = d3.scaleBand()			// x = d3.scaleBand()	
+      .rangeRound([0, height])	// .rangeRound([0, width])
+      .paddingInner(getBarPadding(data)[0])
+      .paddingOuter(getBarPadding(data)[1])
       .align(0.1);
 
-  var x = d3.scaleLinear()		
-      .rangeRound([0, width-legBuffer]);	
+  var x = d3.scaleLinear();		// y = d3.scaleLinear()
 
   //blue scale
   var z = d3.scaleOrdinal().range(airport_colors);
@@ -47,8 +49,9 @@ function drawBarChart (data) {
 
     keys = ['Initial Flight', 'Connection Layover', 'Final Flight']
 
-    y.domain(data.map(function(d) { return d.ConnectCity; }));					
-    x.domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
+    y.domain(data.map(function(d) { return d.ConnectCity; }));				
+    x.rangeRound([0, width-legBuffer-circleSpacing - y.bandwidth()/2.5])	
+      .domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
     z.domain(keys);
 
     g.append("g")
@@ -68,13 +71,14 @@ function drawBarChart (data) {
     var circles = g.append("g")
                   .attr("id", "risk_circles")
 
+          var circRadius = y.bandwidth()/2.5
           circles.selectAll("circle")
                   .data(data)
                   .enter().append("circle")
                     .attr("class", "risk_circles")
                     .attr("cy", function(d) { return y(d.ConnectCity) + y.bandwidth()/2; })
-                    .attr("cx", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + circleSpacing;})
-                    .attr("r", y.bandwidth()/2.5)
+                    .attr("cx", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
+                    .attr("r", circRadius)
                     .attr('fill', function(d) { return riskScale(d['Itinerary Risk']) })
                     .attr('stroke', '#000000')
                     .on('mouseover', (d) => showTooltip(d))
@@ -88,7 +92,7 @@ function drawBarChart (data) {
                             .enter().append("text")
                               .attr("class", "risk_circle_text")
                               .attr("y", function(d) { return y(d.ConnectCity) + y.bandwidth()/2; })
-                              .attr("x", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + circleSpacing;})
+                              .attr("x", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
                               .attr('text-anchor', 'middle')
                               .attr('dominant-baseline', 'middle')
                               .attr('font-size', function(d) { return 24 - 1.25*document.getElementById("top_results").value})
@@ -99,12 +103,16 @@ function drawBarChart (data) {
     // create y axis
     g.append("g")
         .attr("class", "axis")
+        .attr("id", "y-axis")
         .attr("transform", "translate(0,0)") 						
         .call(d3.axisLeft(y));									
+      
+    d3.select("#y-axis").selectAll('text').each(insertLinebreaks);
 
     // create x axis
     g.append("g")
         .attr("class", "axis")
+        .attr("id", "x-axis")
         .attr("transform", "translate(0,"+height+")")				
         .call(d3.axisBottom(x).ticks(null, "s"));					
 
@@ -153,6 +161,43 @@ function drawBarChart (data) {
             .style("top", top + "px")
             .style("opacity", 0.95)
             .style("color", "#fff")
+    }
+
+    function insertLinebreaks (d) {
+      var el = d3.select(this);
+      var lines = d.split('..');
+      el.text('');
+  
+      for (var i = 0; i < lines.length; i++) {
+          var tspan = el.append('tspan').text(lines[i]);
+          if (i == 0){
+            tspan.attr('x','-15').attr('y','-15')
+          }
+          else if (i > 0){
+              tspan.attr('x','-15').attr('dy', '15');
+          }
+      }
+    };
+
+    function getBarPadding(obj){
+      // given a json object (e.g., flights) return the inner and outer paddings
+      // if five or more objects are requested to be returned, leave as default
+      // if less than five, more care is provided to make the graph look more elegant.
+
+      var numFlights = obj.length
+
+      if (numFlights >= 5){
+        var inner = 0.05
+        var outer = 0
+      }
+
+      else{
+        var inner = 0.2 + (4 - numFlights)*0.1
+        var outer = 0.3 + (4 - numFlights)*0.2
+      }
+
+      return [inner, outer]
+      
     }
 
 

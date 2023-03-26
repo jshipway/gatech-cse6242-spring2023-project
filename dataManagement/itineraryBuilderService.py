@@ -6,6 +6,7 @@ import json
 
 from itineraryBuilder import itineraryBuilder
 from itineraryBuilder import getValidDestinations
+import pandas as pd
 
 
 def listToString(s):
@@ -61,27 +62,48 @@ class FlightQueryHandler(RequestHandler):
     dest = listToString(self.get_arguments('dest'))
     date_flight = listToString(self.get_arguments('date'))
     minlayover = int(listToString(self.get_arguments('connect_time')))
-    order = listToString(self.get_arguments('order')).lower()
-    print(order)
+    dne = listToString(self.get_arguments('dne'))
+    dnl = listToString(self.get_arguments('dnl'))
+    ane = listToString(self.get_arguments('ane'))
+    anl = listToString(self.get_arguments('anl'))
+
     print("Getting Flights for: -" + origin + "-" + dest + "-" + date_flight + "-" + str(minlayover) + "-")
      
-    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover, orderby=order)
+    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover,\
+                        dep_no_earlier = dne,\
+                        dep_no_later = dnl,\
+                        arr_no_earlier = ane,\
+                        arr_no_later = anl,\
+                        orderby='duration')
+      
     print(str(len(df.index)) + " records.")
 
-    df['ConnectCity'] = df['FIRST_LEG_AIRLINE'] + " thru: " +\
-        df['SECOND_LEG_ORIG_CITY'] + "Dept: " + df['FIRST_LEG_DEP_TIMESTAMP'].dt.strftime("%I:%M %p") +\
-            "Arr: " + df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime("%I:%M %p")
+    final_cols = ['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
+                  'Trip Duration','Chance of Missed Connection', 'Time Lost if Missed',\
+                  'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST']
+
+    if len(df.index) > 0:
+
+      df['ConnectCity'] = df['FIRST_LEG_AIRLINE'] + " thru: " +\
+          df['SECOND_LEG_ORIG_CITY'] + "..Depart: " + df['FIRST_LEG_DEP_TIMESTAMP'].dt.strftime("%I:%M:%S %p") +\
+              "..Arrive: " + df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime("%I:%M:%S %p")
+      
+      df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
+      df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)
+      df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,1)
+      df['Trip Duration'] = round(df['TRIP_TIME']/60,1)
+      df['Chance of Missed Connection'] = round(df['RISK_MISSED_CONNECTION'],3)
+      df['Time Lost if Missed'] = round(df['NEXT_FLIGHT_TIMELOSS']/60,1)
+      df['Itinerary Risk'] = round(df['TOTAL_RISK']/60,1)
+      
+      df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
+                  'Trip Duration','Chance of Missed Connection', 'Time Lost if Missed',\
+                  'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST']]
+      
+    else:
+       df_output = pd.DataFrame(columns=final_cols)
+       
     
-    df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
-    df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)
-    df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,1)
-    df['Total Flight Time'] = round(df['TRIP_TIME']/60,1)
-    df['Chance of Missed Connection'] = round(df['RISK_MISSED_CONNECTION'],3)
-    df['Time Lost if Missed'] = round(df['NEXT_FLIGHT_TIMELOSS']/60,1)
-    df['Itinerary Risk'] = round(df['TOTAL_RISK']/60,1)
-    
-    df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
-                    'Total Flight Time','Chance of Missed Connection', 'Time Lost if Missed', 'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST']]
     print(df_output.head(len(df_output.index)))
     
     mydict = df_output.to_dict('records')

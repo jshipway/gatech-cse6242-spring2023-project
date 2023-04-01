@@ -63,9 +63,11 @@
     });
 
 
+
+
     function getDestinations() {
-      depart = document.getElementById("depart_airport").value;        
-      $.get( "http://localhost:3000/destinations?origin=" + depart, function( data ) {
+      depart = document.getElementById("depart_airport").value;              
+      $.get("destinations?origin=" + depart, function( data ) {
         $( ".result" ).html( data );
         jsonObj = JSON.parse(data.items)
         var select = document.getElementById("arrive_airport");
@@ -78,8 +80,8 @@
       });
     }
 
-    function showFlights(depart, arrive, date, connect_time, order, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later) {
-        url = "http://localhost:3000/flights?origin=" + depart + "&dest=" + arrive + "&date=" + date + "&connect_time=" + connect_time 
+    function showFlights(depart, arrive, date, connect_time, order, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later) {        
+        url = "flights?origin=" + depart + "&dest=" + arrive + "&date=" + date + "&connect_time=" + connect_time 
         + "&order=" + order + "&dne=" + depart_no_earlier + "&dnl=" + depart_no_later + "&ane=" + arrive_no_earlier + "&anl=" + arrive_no_later;
 
         encodedUri = encodeURI(url);
@@ -198,8 +200,6 @@
   <tr>
     <td>Departure Date:</td>
     <td><input type="text" id="datepicker" size="10" onchange="dateChanged()" value="8/5/2022"></td>
-    <!--Td>Departure Time:</Td>
-    <td><input type="text" id="timepicker" class="timepicker" size="10"-->
     <td>
     Minimum Connection Time (mins):&nbsp;<input type="text" id="min_connect_time" maxlength="3" size="5" value="45">
     </td>

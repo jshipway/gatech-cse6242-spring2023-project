@@ -1,12 +1,15 @@
-# Load tornado module
-# Load tornado module
+#import packages
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 import json
+import tornado
+import os
+import sys
+import pandas as pd
 
 from itineraryBuilder import itineraryBuilder
 from itineraryBuilder import getValidDestinations
-import pandas as pd
+
 
 
 def listToString(s):
@@ -123,28 +126,24 @@ class FlightQueryHandler(RequestHandler):
 
 
 # define end points
-def make_app():
-  urls = [(r"/destinations",DestQueryHandler),(r"/flights",FlightQueryHandler) ]
+def make_app():  
+  web_root_path = os.path.dirname(__file__)
+  web_root_path = web_root_path.replace("dataManagement", "webui")
+  print("Serving index.html from ", web_root_path)
+  urls = [(r"/destinations",DestQueryHandler),(r"/flights",FlightQueryHandler), (r"/(.*)", tornado.web.StaticFileHandler, {"path": web_root_path, "default_filename": "index.html"}) ]
   return Application(urls)
 
 # Start server  
 if __name__ == '__main__':
     app = make_app()
-    app.listen(3000)
-    print("Flight Connections Risk Advisor, running on port 3000")
+    argcount = len(sys.argv)
+    print(argcount)
+    port = 80
+    if argcount >= 2:
+        arg = sys.argv[1]
+        if arg.isdigit():            
+            port=arg
+    
+    app.listen(port)    
+    print("Flight Connections Risk Advisor Service, running on port ", port)
     IOLoop.instance().start()
-    
-
-
-# origin = "SAN"
-# destination = "RDU"
-# flight_date = "8/5/2022"
-# df = getValidDestinations('faa', origin, flight_date)
-# print(df.head(5))
-    
-# df2 = itineraryBuilder('faa', origin, destination, flight_date, 60)
-# df2.drop(list(df2.filter(regex = 'TIMESTAMP')), axis = 1, inplace = True)
-# mydict = df2.to_dict('records')
-# jd = json.dumps(mydict)
-# print(jd)
-# print(type(jd))

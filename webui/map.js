@@ -24,8 +24,8 @@ function drawMap(trips, origin, dest) {
     dest_val = dest;
 
     d3.queue()
-        .defer(d3.json, "./examples/us.json")
-        .defer(d3.csv, "./examples/airports.csv", typeAirport)
+        .defer(d3.json, "./data/us.json")
+        .defer(d3.csv, "./data/airports.csv", typeAirport)
         .await(ready);
 }
 function ready(error, us, airports) { 

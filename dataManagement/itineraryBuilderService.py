@@ -136,8 +136,7 @@ def make_app():
 # Start server  
 if __name__ == '__main__':
     app = make_app()
-    argcount = len(sys.argv)
-    print(argcount)
+    argcount = len(sys.argv)    
     port = 80
     if argcount >= 2:
         arg = sys.argv[1]

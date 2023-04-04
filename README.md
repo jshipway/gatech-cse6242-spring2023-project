@@ -2,32 +2,18 @@
 
 # To run web application:
 
-Once you clone the environment, cd into the webui directory
+Once you clone the repo, cd into the dataManagement directory.
+
 Once in that directory run:
-
-python webServer.py
-
-This runs the simplehttp server, with an attempt to address the cross site scripting issue we still have to work through.   The webserver that serves up our d3 web application will be running on port 8000 by default
-
-Then cd into the dataManagement directory:
-Once in that directory, run:
 
 python itineraryBuilderService.py
 
-This brings up our python back end service running on port 3000.   The d3 web application commuicates with this backend python service using the REST protocol.
+This will bring up the new combo web server and app server on port 80.   
 
-You will need to start a browser that disables cross site scripting (CORS) checks until we figure out the configuration to allow this automatically for this web page and this python back end.   To disable CORS checks in Chrome, run chrome with the following parameters:
+If you start this up on your computer, you would then access this from a browser via http://localhost   
 
---disable-web-security --disable-gpu --user-data-dir="c:\temp"
+If you want to bring everything up on a different port, say 3000, just type:
 
-On windows, you can make a shortcut with the following target:
+python itineraryServiceBuilder.py 3000
 
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --disable-web-security --disable-gpu --user-data-dir="c:\temp"
-
-Your machine may not have a c:\temp, just put a valid temp directory there.
-
-Now, open the browser, and in the address bar, enter:
-
-http://localhost:8000/index.html
-
-
+Then you would access the application via http://localhost:3000 

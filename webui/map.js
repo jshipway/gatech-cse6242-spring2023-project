@@ -71,6 +71,7 @@ function ready(error, us, airports) {
             segment = {};
             segment.origin = flight.origin;
             segment.destination = flight.destination;
+            segment.id = "seg" + segment.origin + segment.destination;
             segment.origin_latitude = origin.latitude;
             segment.origin_longitutde = origin.longitude;
             segment.destination_latitude = destination.latitude;
@@ -78,11 +79,12 @@ function ready(error, us, airports) {
             segment.count = 1;
             segment.risk_score = flight.risk_score;
             unique_segments.push(segment)
-        } else {
-            //keep a running average of segment's risk score based on all the flights running through that path
-            segment.risk_score = ((segment.risk_score * segment.count) + flight.risk_score) / (segment.count + 1)
-            segment.count += 1;
-        }
+        } 
+        // else {
+        //     //keep a running average of segment's risk score based on all the flights running through that path
+        //     segment.risk_score = ((segment.risk_score * segment.count) + flight.risk_score) / (segment.count + 1)
+        //     segment.count += 1;
+        // }
     }
 
 
@@ -152,8 +154,9 @@ function ready(error, us, airports) {
     .attr("y1", d=>projection([d.origin_longitutde, d.origin_latitude])[1])
     .attr("x2", d=>projection([d.destination_longitude, d.destination_latitude])[0])
     .attr("y2", d=>projection([d.destination_longitude, d.destination_latitude])[1])
-    .attr("stroke-width", 4)    
-    .attr('stroke', function(d) { return riskScale(d.risk_score);}  )
+    .attr("stroke-width", 2)    
+    //.attr('stroke', function(d) { return riskScale(d.risk_score);}  )
+    .attr('stroke', 'black'  )
 
     airport.append("path")
         .data(voronoi.polygons(airports.map(projection)))

@@ -150,6 +150,7 @@ function ready(error, us, airports) {
     svgmap.selectAll("line")
     .data(unique_segments)
     .enter().append("line", ".airport-arc")
+    .attr("id", d=>d.id)
     .attr("x1", d=>projection([d.origin_longitutde, d.origin_latitude])[0])
     .attr("y1", d=>projection([d.origin_longitutde, d.origin_latitude])[1])
     .attr("x2", d=>projection([d.destination_longitude, d.destination_latitude])[0])

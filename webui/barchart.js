@@ -66,7 +66,9 @@ function drawBarChart (data) {
         .attr("y", function(d) { return y(d.data.ConnectCity); })	    
         .attr("x", function(d) { return x(d[0]); })			    
         .attr("width", function(d) { return x(d[1]) - x(d[0]); })	
-        .attr("height", y.bandwidth())						    
+        .attr("height", y.bandwidth())			
+        .on('mouseover', function (d) { return showRoute(d.data);})
+        .on('mouseout', function (d) { return normalRoute(d.data);})			    
     
     var circles = g.append("g")
                   .attr("id", "risk_circles")
@@ -81,8 +83,9 @@ function drawBarChart (data) {
                     .attr("r", circRadius)
                     .attr('fill', function(d) { return riskScale(d['Itinerary Risk']) })
                     .attr('stroke', '#000000')
-                    .on('mouseover', (d) => showTooltip(d))
-                    .on('mouseout', function () { return tooltip.style("visibility", "hidden") })
+                    //.on('mouseover', (d) => showTooltip(d))
+                    .on('mouseover', function (d) { showRoute(d); return showTooltip(d)})
+                    .on('mouseout', function (d) { normalRoute(d); return tooltip.style("visibility", "hidden") })
           
     var circleTxt = circles.append("g")
                             .attr("id", "risk_circle_text")
@@ -160,8 +163,36 @@ function drawBarChart (data) {
             .style("left", left + "px")
             .style("top", top + "px")
             .style("opacity", 0.95)
-            .style("color", "#fff")
+            .style("color", "#fff")    
+      
     }
+
+    function showRoute(d) {
+      var segid = "#seg" + d.FIRST_LEG_ORIG + d.FIRST_LEG_DEST;
+      var segid2 = "#seg" + d.SECOND_LEG_ORIG + d.SECOND_LEG_DEST;
+      riskColor = riskScale(d['Itinerary Risk'])
+      d3.select("body").select("#svgmap").select(segid)
+      .style("stroke", riskColor)  
+      .attr("stroke-width", 4)
+
+      d3.select("body").select("#svgmap").select(segid2)
+      .style("stroke", riskColor)  
+      .attr("stroke-width", 4)
+    }
+
+
+    function normalRoute(d) {
+      var segid = "#seg" + d.FIRST_LEG_ORIG + d.FIRST_LEG_DEST;
+      var segid2 = "#seg" + d.SECOND_LEG_ORIG + d.SECOND_LEG_DEST;
+      d3.select("body").select("#svgmap").select(segid)
+      .style("stroke", "black")  
+      .attr("stroke-width", 2)
+
+      d3.select("body").select("#svgmap").select(segid2)
+      .style("stroke", "black")  
+      .attr("stroke-width", 2)
+    }
+
 
     function insertLinebreaks (d) {
       var el = d3.select(this);

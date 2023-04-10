@@ -82,8 +82,7 @@ function drawBarChart (data) {
                     .attr("cx", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
                     .attr("r", circRadius)
                     .attr('fill', function(d) { return riskScale(d['Itinerary Risk']) })
-                    .attr('stroke', '#000000')
-                    //.on('mouseover', (d) => showTooltip(d))
+                    .attr('stroke', '#000000')                    
                     .on('mouseover', function (d) { showRoute(d); return showTooltip(d)})
                     .on('mouseout', function (d) { normalRoute(d); return tooltip.style("visibility", "hidden") })
           
@@ -99,7 +98,8 @@ function drawBarChart (data) {
                               .attr('text-anchor', 'middle')
                               .attr('dominant-baseline', 'middle')
                               .attr('font-size', function(d) { return 24 - 1.25*document.getElementById("top_results").value})
-                              .on('mouseover', (d) => showTooltip(d))
+                              //.on('mouseover', (d) => showTooltip(d))
+                              .on('mouseover', function (d) { showRoute(d); return showTooltip(d)})
                               .text(function(d) { return d['Itinerary Risk']})
 
 
@@ -173,11 +173,11 @@ function drawBarChart (data) {
       riskColor = riskScale(d['Itinerary Risk'])
       d3.select("body").select("#svgmap").select(segid)
       .style("stroke", riskColor)  
-      .attr("stroke-width", 4)
+      .attr("stroke-width", 6)
 
       d3.select("body").select("#svgmap").select(segid2)
       .style("stroke", riskColor)  
-      .attr("stroke-width", 4)
+      .attr("stroke-width", 6)
     }
 
 

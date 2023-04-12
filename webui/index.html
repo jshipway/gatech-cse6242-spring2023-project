@@ -65,8 +65,13 @@
 
 
     function getDestinations() {
-      depart = document.getElementById("depart_airport").value;              
-      $.get("destinations?origin=" + depart, function( data ) {
+      depart = document.getElementById("depart_airport").value;   
+      date = $('#datepicker').val(); 
+      if (date === "") {
+        date = "12/1/2019";
+      }
+      
+      $.get("destinations?origin=" + depart + "&date=" + date, function( data ) {
         $( ".result" ).html( data );
         jsonObj = JSON.parse(data.items)
         var select = document.getElementById("arrive_airport");
@@ -254,7 +259,7 @@
   </tr>
   <tr>
     <td>Departure Date:</td>
-    <td><input type="text" id="datepicker" size="10" onchange="initSliders()" value="12/01/2019"></td>
+    <td><input type="text" id="datepicker" size="10" onchange="initSliders();getDestinations();" value="12/1/2019"></td>
     <td>
       Minimum Connection Time:
     </td>

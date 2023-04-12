@@ -168,9 +168,10 @@ function drawBarChart (data) {
 
     var bubbleLegend = g.append("g")
 
+    var bubbleLegTitleHgt = 150
     bubbleLegend.append("text")
     .attr("x", width)
-    .attr("y", 80)
+    .attr("y", bubbleLegTitleHgt)
     .attr("text-anchor", "middle")
     .attr('dominant-baseline', 'middle')
     .attr("font-size", 10) 
@@ -183,7 +184,7 @@ function drawBarChart (data) {
     for (let i = 0; i < colors.length; i++){
       bubbleLegend.append("circle")
                   .attr("cx", width + 17)
-                  .attr("cy", 105 + 35*i)
+                  .attr("cy", bubbleLegTitleHgt + 25 + 35*i)
                   .attr("r", 15)
                   .attr('stroke', '#000000')
                   .attr("fill", colors[i])
@@ -192,7 +193,7 @@ function drawBarChart (data) {
         
       bubbleLegend.append("text")
                 .attr("x", width - 3)
-                .attr("y", 105 + 35*i)
+                .attr("y", bubbleLegTitleHgt + 25 + 35*i)
                 .attr("text-anchor", "end")
                 .attr('dominant-baseline', 'middle')
                 .attr("font-size", 10) 

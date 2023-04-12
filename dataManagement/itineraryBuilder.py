@@ -1,50 +1,55 @@
 import sqlite3
 import pandas as pd
 import pytz
-import numpy as np # used for dummy ML only
 
 
 def itineraryBuilder(db_name: str,\
                     ORIG: str,\
                     DEST: str,\
                     DATE: str,\
+                    arr_no_later_date: str,\
                     tc: int,\
                     dep_no_earlier = '1',\
                     dep_no_later = '2359',\
                     arr_no_earlier = '1',\
                     arr_no_later = '2359',\
                     max_tc = 360,\
-                    orderby = 'risk',\
+                    orderby = 'duration',\
                     timezone_location = './airport_timezones_pytz.csv'):
+    
     
     ### This function returns all data required for the itinerary risk visualization.
     ### A multitude of columns are returned in a pandas dataframe, as listed below.
     ### The resulting dataframe may be ordered by 'risk' or by 'duration'.
     """ 'FIRST_LEG_AIRLINE', 'FIRST_LEG_ORIG', 'FIRST_LEG_ORIG_CITY',
        'FIRST_LEG_DEST', 'FIRST_LEG_DEST_CITY', 'FIRST_LEG_DATE',
-       'FIRST_LEG_FLIGHT_NUM', 'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',
+       'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',
        'SECOND_LEG_AIRLINE', 'SECOND_LEG_ORIG', 'SECOND_LEG_ORIG_CITY',
        'SECOND_LEG_DEST', 'SECOND_LEG_DEST_CITY', 'SECOND_LEG_DATE',
-       'SECOND_LEG_FLIGHT_NUM', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',
+       'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',
        'NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_DEP_TIME',
        'NEXT_BEST_SECOND_LEG_ARR_TIME', 'FIRST_LEG_ORIG_TZ',
        'FIRST_LEG_DEST_TZ', 'SECOND_LEG_ORIG_TZ', 'SECOND_LEG_DEST_TZ',
        'FIRST_LEG_DEP_TIMESTAMP', 'FIRST_LEG_ARR_TIMESTAMP',
        'SECOND_LEG_DEP_TIMESTAMP', 'SECOND_LEG_ARR_TIMESTAMP',
+       'FIRST_LEG_PRED15', 'FIRST_LEG_PRED30', 'FIRST_LEG_PRED45',
+       'FIRST_LEG_PRED60', 'FIRST_LEG_PRED75',
+        'FIRST_LEG_PRED90', 'FIRST_LEG_PRED105', 'FIRST_LEG_PRED120',
        'NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP',
        'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP', 'overnight_bool_1',
        'overnight_bool_2', 'overnight_bool_3', 'FIRST_FLIGHT_DURATION',
        'SECOND_FLIGHT_DURATION', 'CONNECT_TIME', 'TRIP_TIME',
        'RISK_MISSED_CONNECTION', 'NEXT_FLIGHT_TIMELOSS', 'TOTAL_RISK' """
 
-    if orderby not in ['risk', 'duration']:
-        raise ValueError('Please order by either "risk" or "duration".')
+    if orderby not in ['risk', 'duration', 'earliest_arrival', 'min_connection_time']:
+        raise ValueError('Please order by either "risk", "duration", "earliest_arrival", or "min_connect_time".')
     
     df = queryFlights(db_name, ORIG, DEST, DATE, dep_no_earlier, dep_no_later, arr_no_earlier, arr_no_later)
 
     if df.shape[0] > 0:
         # only run the transformations below if flights are returned
-    
+
+        # convert the timezones
         tz = load_timezone_dictionary(timezone_location)
 
         pd.set_option('mode.chained_assignment', None)
@@ -92,6 +97,14 @@ def itineraryBuilder(db_name: str,\
         df['overnight_bool_2'] = pd.Series([arr < dept for (arr, dept) in second_leg_zip]).astype(int)
         df['overnight_bool_3'] = pd.Series([arr < dept for (arr, dept) in next_best_zip]).astype(int)
 
+        #check to see if traveler is ok with trip extending to next day
+        if DATE == arr_no_later_date:
+            ## drop if date changed during either flight, or if the date changed between connection flights
+            df['overnight_connection'] = pd.Series(df['FIRST_LEG_DATE'] != df['SECOND_LEG_DATE'])
+
+            any_overnight = (df['overnight_bool_1'] + df['overnight_bool_2'] + df['overnight_connection']).astype('bool')
+            df = df.loc[any_overnight == False, :]
+
         df['FIRST_LEG_ARR_TIMESTAMP'] = df['FIRST_LEG_ARR_TIMESTAMP'] + df['overnight_bool_1'].astype('timedelta64[D]')
         df['SECOND_LEG_ARR_TIMESTAMP'] = df['SECOND_LEG_ARR_TIMESTAMP'] + df['overnight_bool_2'].astype('timedelta64[D]')
         df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] = df['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] + df['overnight_bool_3'].astype('timedelta64[D]')
@@ -105,34 +118,52 @@ def itineraryBuilder(db_name: str,\
 
         df = df.loc[df.loc[:, 'CONNECT_TIME'].between(tc, max_tc)]
 
-        num_rows = df.shape[0]
+        #num_rows = df.shape[0]
+        #df['RISK_MISSED_CONNECTION'] = dummyMLResult(num_rows)
 
-        df['RISK_MISSED_CONNECTION'] = dummyMLResult(num_rows)
+        ## determine appropriate risk factor for each flight
+        ## risk is established as a step function
+
+        df.reset_index(drop=True, inplace=True)
+        risk_cols_to_ref = [getRiskColumnName(c) for c in df['CONNECT_TIME']]
+        risks_to_apply = [df.loc[index, col] for index,col in enumerate(risk_cols_to_ref)]
+
+        df['RISK_MISSED_CONNECTION'] = risks_to_apply
+
         df['NEXT_FLIGHT_TIMELOSS'] = (df.loc[:, 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
 
         df['TOTAL_RISK'] = df.loc[:, 'RISK_MISSED_CONNECTION'] * df.loc[:, 'NEXT_FLIGHT_TIMELOSS']
 
         if orderby == 'risk':
             df.sort_values(by=['TOTAL_RISK'], inplace=True)
-            df.reset_index(drop=True, inplace=True)
         
         elif orderby == 'duration':
             df.sort_values(by=['TRIP_TIME'], inplace=True)
-            df.reset_index(drop=True, inplace=True)
+
+        elif orderby == 'earliest_arrival':
+            df.sort_values(by=['SECOND_LEG_ARR_TIMESTAMP'], inplace=True)
+
+        elif orderby == 'min_connection_time':
+            df.sort_values(by=['CONNECT_TIME'], inplace=True)
+        
+        df.reset_index(drop=True, inplace=True)
 
     else:
         # if there are no flights available in date/time range requested, return empty df with column names
         cols = ['FIRST_LEG_AIRLINE', 'FIRST_LEG_ORIG', 'FIRST_LEG_ORIG_CITY',\
                 'FIRST_LEG_DEST', 'FIRST_LEG_DEST_CITY', 'FIRST_LEG_DATE',\
-                'FIRST_LEG_FLIGHT_NUM', 'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',\
+                'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',\
                 'SECOND_LEG_AIRLINE', 'SECOND_LEG_ORIG', 'SECOND_LEG_ORIG_CITY',\
                 'SECOND_LEG_DEST', 'SECOND_LEG_DEST_CITY', 'SECOND_LEG_DATE',\
-                'SECOND_LEG_FLIGHT_NUM', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',\
+                'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',\
                 'NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_DEP_TIME',\
                 'NEXT_BEST_SECOND_LEG_ARR_TIME', 'FIRST_LEG_ORIG_TZ',\
                 'FIRST_LEG_DEST_TZ', 'SECOND_LEG_ORIG_TZ', 'SECOND_LEG_DEST_TZ',\
                 'FIRST_LEG_DEP_TIMESTAMP', 'FIRST_LEG_ARR_TIMESTAMP',\
                 'SECOND_LEG_DEP_TIMESTAMP', 'SECOND_LEG_ARR_TIMESTAMP',\
+                'FIRST_LEG_PRED15', 'FIRST_LEG_PRED30', 'FIRST_LEG_PRED45',\
+                'FIRST_LEG_PRED60', 'FIRST_LEG_PRED75',\
+                'FIRST_LEG_PRED90', 'FIRST_LEG_PRED105', 'FIRST_LEG_PRED120'\
                 'NEXT_BEST_SECOND_LEG_DEP_TIMESTAMP',\
                 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP', 'overnight_bool_1',\
                 'overnight_bool_2', 'overnight_bool_3', 'FIRST_FLIGHT_DURATION',\
@@ -159,10 +190,13 @@ def queryFlights(db_name: str,\
     ### The database returned contains the following columns:
     """'FIRST_LEG_AIRLINE', 'FIRST_LEG_ORIG', 'FIRST_LEG_ORIG_CITY',
        'FIRST_LEG_DEST', 'FIRST_LEG_DEST_CITY', 'FIRST_LEG_DATE',
-       'FIRST_LEG_FLIGHT_NUM', 'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',
+       'FIRST_LEG_DEP_TIME', 'FIRST_LEG_ARR_TIME',
        'SECOND_LEG_AIRLINE', 'SECOND_LEG_ORIG', 'SECOND_LEG_ORIG_CITY',
        'SECOND_LEG_DEST', 'SECOND_LEG_DEST_CITY', 'SECOND_LEG_DATE',
-       'SECOND_LEG_FLIGHT_NUM', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',
+       'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME',
+       'FIRST_LEG_PRED15', 'FIRST_LEG_PRED30', 'FIRST_LEG_PRED45',
+       'FIRST_LEG_PRED60', 'FIRST_LEG_PRED75',
+        'FIRST_LEG_PRED90', 'FIRST_LEG_PRED105', 'FIRST_LEG_PRED120'
        'NEXT_BEST_SECOND_LEG_DATE', 'NEXT_BEST_SECOND_LEG_DEP_TIME',
        'NEXT_BEST_SECOND_LEG_ARR_TIME"""
 
@@ -182,57 +216,70 @@ def queryFlights(db_name: str,\
                     start.Dest AS FIRST_LEG_DEST,
                     start.DestCity AS FIRST_LEG_DEST_CITY,
                     start.Date AS FIRST_LEG_DATE,
-                    start.FlightNum AS FIRST_LEG_FLIGHT_NUM,
-                    start.DepTime AS FIRST_LEG_DEP_TIME,
-                    start.ArrTime AS FIRST_LEG_ARR_TIME,
+                    start.DepartureTime AS FIRST_LEG_DEP_TIME,
+                    start.ArrivalTime AS FIRST_LEG_ARR_TIME,
+                    start.Prediction_15min AS FIRST_LEG_PRED15,
+                    start.Prediction_30min AS FIRST_LEG_PRED30,
+                    start.Prediction_45min AS FIRST_LEG_PRED45,
+                    start.Prediction_60min AS FIRST_LEG_PRED60,
+                    start.Prediction_75min AS FIRST_LEG_PRED75,
+                    start.Prediction_90min AS FIRST_LEG_PRED90,
+                    start.Prediction_105min AS FIRST_LEG_PRED105,
+                    start.Prediction_120min AS FIRST_LEG_PRED120,
                     finish.Airline AS SECOND_LEG_AIRLINE,                    
                     finish.Origin AS SECOND_LEG_ORIG,
                     finish.OriginCity AS SECOND_LEG_ORIG_CITY,
                     finish.Dest AS SECOND_LEG_DEST,
                     finish.DestCity AS SECOND_LEG_DEST_CITY,
                     finish.Date AS SECOND_LEG_DATE,
-                    finish.FlightNum AS SECOND_LEG_FLIGHT_NUM,
-                    finish.DepTime AS SECOND_LEG_DEP_TIME,
-                    finish.ArrTime AS SECOND_LEG_ARR_TIME
+                    finish.DepartureTime AS SECOND_LEG_DEP_TIME,
+                    finish.ArrivalTime AS SECOND_LEG_ARR_TIME
                 FROM 
                     (SELECT
-                        IATA_Code_Marketing_Airline AS Airline,
+                        Marketing_Airline_Network AS Airline,
                         Origin,
                         OriginCityName AS OriginCity,
                         Dest,
                         DestCityName AS DestCity,
                         FlightDate AS Date,
-                        Flight_Number_Operating_Airline AS FlightNum,
-                        CRSDepTime AS DepTime,
-                        CRSArrTime AS ArrTime
-                    FROM faa
+                        CAST(CRSDepTime AS INT) AS DepartureTime,
+                        CAST(CRSArrTime AS INT) AS ArrivalTime,
+                        Prediction_15min,
+                        Prediction_30min,
+                        Prediction_45min,
+                        Prediction_60min,
+                        Prediction_75min,
+                        Prediction_90min,
+                        Prediction_105min,
+                        Prediction_120min
+                    FROM {db_name}
                     WHERE
                         Origin = {origin} AND
                         Dest <> {destination} AND
                         FlightDate = {flight_date} AND
-                        CAST(DepTime AS int) BETWEEN {dep_no_earlier} AND {dep_no_later}) AS start,
+                        DepartureTime >= CAST({dep_no_earlier} AS INT) AND
+                        DepartureTime <= CAST({dep_no_later} AS INT)) AS start,
                     (SELECT
-                        IATA_Code_Marketing_Airline AS Airline,
+                        Marketing_Airline_Network AS Airline,
                         Origin,
                         OriginCityName AS OriginCity,
                         Dest,
                         DestCityName AS DestCity,
                         FlightDate AS Date,
-                        Flight_Number_Operating_Airline AS FlightNum,
-                        CRSDepTime AS DepTime,
-                        CRSArrTime AS ArrTime
-                    FROM faa
+                        CAST(CRSDepTime AS INT) AS DepartureTime,
+                        CAST(CRSArrTime AS INT) AS ArrivalTime
+                    FROM {db_name}
                     WHERE
                         Origin <> {origin} AND
                         Dest = {destination} AND
                         FlightDate IN ({flight_date}, {next_date}, {third_date}) AND
-                        Cast(ArrTime AS int) BETWEEN {arr_no_earlier} AND {arr_no_later}) AS finish
+                        ArrivalTime >= CAST({arr_no_earlier} AS INT) AND
+                        ArrivalTime <= CAST({arr_no_later} AS INT)) AS finish
                 WHERE
                     FIRST_LEG_DEST = SECOND_LEG_ORIG AND
                     FIRST_LEG_AIRLINE = SECOND_LEG_AIRLINE
                 ORDER BY SECOND_LEG_ORIG, SECOND_LEG_DATE, CAST(SECOND_LEG_DEP_TIME AS int)
         '''
-
     df = pd.read_sql_query(sql, conn)
 
     conn.close()
@@ -244,6 +291,22 @@ def queryFlights(db_name: str,\
 
     df_next_best = pd.concat([df, next_best_flights], axis=1)
     df_next_best = df_next_best[df_next_best['NEXT_BEST_SECOND_LEG_DATE'].notnull()]
+    df_next_best = df_next_best.astype({'NEXT_BEST_SECOND_LEG_DEP_TIME': 'int',\
+                                        'NEXT_BEST_SECOND_LEG_ARR_TIME': 'int'})
+    df_next_best = df_next_best.astype({'FIRST_LEG_DEP_TIME': 'str',\
+                                        'FIRST_LEG_ARR_TIME': 'str',\
+                                        'SECOND_LEG_DEP_TIME': 'str',\
+                                        'SECOND_LEG_ARR_TIME': 'str',\
+                                        'NEXT_BEST_SECOND_LEG_DEP_TIME': 'str',\
+                                        'NEXT_BEST_SECOND_LEG_ARR_TIME': 'str',\
+                                        'FIRST_LEG_PRED15': 'float',\
+                                        'FIRST_LEG_PRED30': 'float',\
+                                        'FIRST_LEG_PRED45': 'float',\
+                                        'FIRST_LEG_PRED60': 'float',\
+                                        'FIRST_LEG_PRED75': 'float',\
+                                        'FIRST_LEG_PRED90': 'float',\
+                                        'FIRST_LEG_PRED105': 'float',\
+                                        'FIRST_LEG_PRED120': 'float'})
 
     return df_next_best.reset_index(drop=True)
 
@@ -270,7 +333,7 @@ def getValidDestinations(db_name: str, ORIG: str, DATE: str):
                         Dest,
                         DestCityName AS DestCity,
                         FlightDate AS Date
-                    FROM faa
+                    FROM {db_name}
                     WHERE
                         Origin = {origin} AND
                         FlightDate = {flight_date}) AS start,
@@ -280,7 +343,7 @@ def getValidDestinations(db_name: str, ORIG: str, DATE: str):
                         Dest,
                         DestCityName AS DestCity,
                         FlightDate AS Date
-                    FROM faa
+                    FROM {db_name}
                     WHERE
                         Origin <> {origin} AND
                         FlightDate IN ({flight_date}, {next_date})) AS finish
@@ -343,9 +406,9 @@ def getNextBest(itinerary_partition, returnType = 'new_only'):
             
         present_index = present_index + 1
 
-    colsForNull = ['SECOND_LEG_ORIG', 'SECOND_LEG_DATE', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME']
     dummy_row_location = len(df_partition.index)
-    df_partition.loc[dummy_row_location, colsForNull] = [None, None, None, None]
+    df_partition.loc[dummy_row_location, :] = [None, None, None, None]
+
     next_best.append(dummy_row_location)
 
     df_partition['NEXT_BEST_SECOND_LEG_DATE'] = [df_partition['SECOND_LEG_DATE'].tolist()[i] for i in next_best]
@@ -394,16 +457,27 @@ def load_timezone_dictionary(location):
     return dictionary
 
 
-def dummyMLResult(num_rows: int):
-    # this function is used for demonstration purposes only
-    # it will be replaced our algorithm's "predict" function once available.
+def getRiskColumnName(tc):
+    ## assume a 30 minute buffer
+    ## i.e., if a person has a 45 minute connection time, they will miss their connection if first leg is >15 mins late.
+    ## best attempt at accounting for plane doors closing before flight departs
+    ## this will differ by airport; adding specificity to this assumption is a subject for further research
 
-    return np.random.uniform(0,1,num_rows)
-
-
-def dummyMissedConnectionTimeAdd(num_rows: int):
-    # this function is used for demonstration purposes only
-    # it will be replaced our algorithm's "predict" function once available.
-
-    return np.random.uniform(0,1440,num_rows)
-
+    risk_col_names = ['FIRST_LEG_PRED15', 'FIRST_LEG_PRED30', 'FIRST_LEG_PRED45', 'FIRST_LEG_PRED60', 'FIRST_LEG_PRED75',\
+                        'FIRST_LEG_PRED90', 'FIRST_LEG_PRED105', 'FIRST_LEG_PRED120']
+    if tc >= 150:
+        return risk_col_names[7]
+    elif tc >= 135:
+        return risk_col_names[6]
+    elif tc >= 120:
+        return risk_col_names[5]
+    elif tc >= 105:
+        return risk_col_names[4]
+    elif tc >= 90:
+        return risk_col_names[3]
+    elif tc >= 75:
+        return risk_col_names[2]
+    elif tc >= 60:
+        return risk_col_names[1]
+    else:
+        return risk_col_names[0]

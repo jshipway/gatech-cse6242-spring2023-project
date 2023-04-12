@@ -16,6 +16,8 @@ function drawBarChart (data) {
   
 
   // define tooltip
+  d3.selectAll('.tooltip').remove() // delete any existing tooltips from previous searches
+
   var tooltip = d3.select("body")
                     .append("div")
                     .attr("class", "tooltip")
@@ -33,25 +35,37 @@ function drawBarChart (data) {
       .paddingOuter(getBarPadding(data)[1])
       .align(0.1);
 
-  var x = d3.scaleLinear();		// y = d3.scaleLinear()
+  var x = d3.scaleLinear();
 
   //blue scale
   var z = d3.scaleOrdinal().range(airport_colors);
       
+  /*
+  this is only used on the original quantile scale
+
   var riskScores = data.map((d) => d['Itinerary Risk']).sort(function(a,b) {return a-b})
+  */
 
   dataInspect = data
+  riskScale = d3.scaleThreshold()
+                // domain is the itinerary risk as a percentage of the scheduled itinerary duration 
+                .domain([0.05, 0.15, 0.25, 1.0])                                            
+                .range(['#AFE1AF', '#fdcc8a', '#fc8d59', '#d7301f'])
+
+  /*
+  Original risk scale was quantile based. Requested to shift to a more consistent thresholding basis.
+  Leaving the original code here as an option for later modelers.              
   riskScale = d3.scaleQuantile()
                           .domain(riskScores)                                              
-                          //.range(['#fef0d9', '#fdcc8a', '#fc8d59', '#d7301f'])
                           //changed lowest risk to a light green, the prior light beige color was not showing well on US map
                           .range(['#AFE1AF', '#fdcc8a', '#fc8d59', '#d7301f'])
+  */
 
-    keys = ['Initial Flight', 'Connection Layover', 'Final Flight']
+    keys = ['Initial Flight', 'Connection Time', 'Final Flight']
 
     y.domain(data.map(function(d) { return d.ConnectCity; }));				
     x.rangeRound([0, width-legBuffer-circleSpacing - y.bandwidth()/2.5])	
-      .domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Layover']+d['Final Flight']; })]).nice();	// y.domain...
+      .domain([0, d3.max(data, function(d) { return d['Initial Flight']+d['Connection Time']+d['Final Flight']; })]).nice();	// y.domain...
     z.domain(keys);
 
     g.append("g")
@@ -66,9 +80,9 @@ function drawBarChart (data) {
         .attr("y", function(d) { return y(d.data.ConnectCity); })	    
         .attr("x", function(d) { return x(d[0]); })			    
         .attr("width", function(d) { return x(d[1]) - x(d[0]); })	
-        .attr("height", y.bandwidth())			
-        .on('mouseover', function (d) { return showRoute(d.data);})
-        .on('mouseout', function (d) { return normalRoute(d.data);})			    
+        .attr("height", y.bandwidth())
+        .on('mouseover', function (d) {showRoute(d.data); return showTooltip(d)})
+        .on('mouseout', function(d){normalRoute(d.data); return tooltip.style("visibility", "hidden")})	    
     
     var circles = g.append("g")
                   .attr("id", "risk_circles")
@@ -79,13 +93,16 @@ function drawBarChart (data) {
                   .enter().append("circle")
                     .attr("class", "risk_circles")
                     .attr("cy", function(d) { return y(d.ConnectCity) + y.bandwidth()/2; })
-                    .attr("cx", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
+                    .attr("cx", function(d) { return x(d['Initial Flight'] + d['Connection Time'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
                     .attr("r", circRadius)
                     .attr('fill', function(d) { return riskScale(d['Itinerary Risk']) })
-                    .attr('stroke', '#000000')                    
-                    .on('mouseover', function (d) { showRoute(d); return showTooltip(d)})
-                    .on('mouseout', function (d) { normalRoute(d); return tooltip.style("visibility", "hidden") })
+                    .attr('stroke', '#000000')
+                    .on('mouseover', function(d){showRoute(d); return showTooltip(d)})
+                    .on('mouseout', function (d) {normalRoute(d); return tooltip.style("visibility", "hidden") })
           
+    /* This code prints the itinerary risk score to the bubbles
+    This was requested to be removed by the project team on 4/10/2023. Keeping here in case others wish to resuscitate.
+
     var circleTxt = circles.append("g")
                             .attr("id", "risk_circle_text")
 
@@ -94,14 +111,12 @@ function drawBarChart (data) {
                             .enter().append("text")
                               .attr("class", "risk_circle_text")
                               .attr("y", function(d) { return y(d.ConnectCity) + y.bandwidth()/2; })
-                              .attr("x", function(d) { return x(d['Initial Flight'] + d['Connection Layover'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
+                              .attr("x", function(d) { return x(d['Initial Flight'] + d['Connection Time'] + d['Final Flight']) + d3.max([circleSpacing, circRadius + 5]);})
                               .attr('text-anchor', 'middle')
                               .attr('dominant-baseline', 'middle')
                               .attr('font-size', function(d) { return 24 - 1.25*document.getElementById("top_results").value})
-                              //.on('mouseover', (d) => showTooltip(d))
-                              .on('mouseover', function (d) { showRoute(d); return showTooltip(d)})
                               .text(function(d) { return d['Itinerary Risk']})
-
+    */
 
     // create y axis
     g.append("g")
@@ -149,22 +164,87 @@ function drawBarChart (data) {
         .attr("y", 9.5)
         .attr("dy", "0.32em")
         .text(function(d) { return d; });
-  
+
+
+    var bubbleLegend = g.append("g")
+
+    bubbleLegend.append("text")
+    .attr("x", width)
+    .attr("y", 80)
+    .attr("text-anchor", "middle")
+    .attr('dominant-baseline', 'middle')
+    .attr("font-size", 10) 
+    .text('Itinerary Risk Level');
+
+    var colors = ['#AFE1AF', '#fdcc8a', '#fc8d59', '#d7301f']
+    var descriptions = ['Very Low', 'Low', 'Medium', 'High']
+    var thresholdDesc = ['< 5%', '5-15%', '15-25%', '>25%']
+    
+    for (let i = 0; i < colors.length; i++){
+      bubbleLegend.append("circle")
+                  .attr("cx", width + 17)
+                  .attr("cy", 105 + 35*i)
+                  .attr("r", 15)
+                  .attr('stroke', '#000000')
+                  .attr("fill", colors[i])
+                  .on('mouseover', function(d){return showLegendInfo(thresholdDesc[i])})
+                  .on('mouseout', function (d) {return tooltip.style("visibility", "hidden") })
+        
+      bubbleLegend.append("text")
+                .attr("x", width - 3)
+                .attr("y", 105 + 35*i)
+                .attr("text-anchor", "end")
+                .attr('dominant-baseline', 'middle')
+                .attr("font-size", 10) 
+                .text(descriptions[i]);
+    }
         
     function showTooltip(d){
       var top = d3.event.clientY + 5
-      var left = d3.event.clientX + 5 
-                      
-      var chance = ( d['Chance of Missed Connection'] * 100 ).toFixed(2)
-      var timeloss = d['Time Lost if Missed']
-
-      tooltip.html(`Chance of Missed Connection: ${chance}%<br>Time Lost if Missed: ${timeloss} hrs.`)
-            .style("visibility", "visible")
-            .style("left", left + "px")
-            .style("top", top + "px")
-            .style("opacity", 0.95)
-            .style("color", "#fff")    
+      var left = d3.event.clientX + 5
       
+      if ('data' in d){
+        // this is the data structure for the rectangular bars
+        var segmentLength = d[1] - d[0];
+
+        tooltip.html(`Itinerary Segment Length:<br>${segmentLength.toFixed(1)} hours.`)
+              .style("visibility", "visible")
+              .style("left", left + "px")
+              .style("top", top + "px")
+              .style("opacity", 0.95)
+              .style("color", "#fff")       
+    }
+
+      else{
+        // if not rectangle the tooltip is hovering over one of the bubbles
+        var chance = ( d['Chance of Missed Connection'] * 100 ).toFixed(1)
+        if (chance < 0.1){
+          // avoid committing to "zero" chance.
+          // set to less than 0.1%.
+          chance = '< 0.1'
+        }
+        var timeloss = d['Time Lost if Missed']
+        
+        tooltip.html(`Chance of Missed Connection: ${chance}%<br>Time Lost if Missed: ${timeloss} hours`)
+              .style("visibility", "visible")
+              .style("left", left + "px")
+              .style("top", top + "px")
+              .style("opacity", 0.95)
+              .style("color", "#fff")
+      }
+    }
+
+    function showLegendInfo(info){
+      var top = d3.event.clientY - 5
+      var left = d3.event.clientX - 5
+
+      tooltip.html(`Expected delay is ${info} of the scheduled trip duration.`)
+      .style("visibility", "visible")
+      .style("left", left + "px")
+      .style("top", top + "px")
+      .style("opacity", 0.95)
+      .style("color", "#fff")  
+
     }
 
     function showRoute(d) {

@@ -2,7 +2,7 @@
 
 margin = {top: 20, right: 110, bottom: 30, left: 160},
 width = 960 - margin.left - margin.right,
-height = 500 - margin.top - margin.bottom;
+height = 600 - margin.top - margin.bottom;
 
 legBuffer = 100;
 circleSpacing = 40;

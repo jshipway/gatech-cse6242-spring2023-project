@@ -120,7 +120,7 @@ form.example::after {
 
 section.range-slider {
   position: relative;
-  width: 200px;
+  width: 250px;
   height: 35px;
   text-align: center;
 }
@@ -131,7 +131,7 @@ section.range-slider input {
   overflow: hidden;
   left: 0;
   top: 15px;
-  width: 200px;
+  width: 250px;
   outline: none;
   height: 18px;
   margin: 0;
@@ -168,7 +168,7 @@ section.range-slider input[type=range]::-moz-focus-outer {
 border: 0;
 }
 
-#no_results{
+.if_no_results{
   padding: 7px;
   text-align:center;    
   color: #000;

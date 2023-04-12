@@ -39,7 +39,7 @@ function ready(error, us, airports) {
     .attr("id", "svgmap")
     .attr("x", margin.left)
     .attr("width", width + margin.left + margin.right)    
-    .attr("height", height + margin.top + margin.bottom + 100)
+    .attr("height", height + margin.top + margin.bottom)
 
     var projection = d3.geoAlbers()
     .translate([width / 2 + 100, height / 2 + 50])

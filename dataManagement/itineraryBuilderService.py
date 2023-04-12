@@ -34,8 +34,8 @@ class DestQueryHandler(RequestHandler):
   def get(self):
     origin = listToString(self.get_arguments('origin'))
     print("Getting Destinatins for Origin: " + origin)        
-    flight_date = "8/5/2022"
-    df = getValidDestinations('faa', origin, flight_date)        
+    flight_date = "12/1/2019"
+    df = getValidDestinations('faa_2019_12', origin, flight_date)        
     dfjson = json.dumps(df.values.tolist())
     print(dfjson)
     self.write({'links':[],"name": "items","start": 0,"count": len(df.index), "items": dfjson,"limit": 20,"version": 2})
@@ -69,10 +69,31 @@ class FlightQueryHandler(RequestHandler):
     dnl = listToString(self.get_arguments('dnl'))
     ane = listToString(self.get_arguments('ane'))
     anl = listToString(self.get_arguments('anl'))
+    anldate = listToString(self.get_arguments('anldate'))
+
+    ## post-process date to remove any leading zeroes in month or day column
+    tmp = date_flight.split('/')
+    mo, day, year = tmp[0].lstrip("0"), tmp[1].lstrip("0"), tmp[2]
+    date_flight = mo + '/' + day + '/' + year
+
+    tmp = anldate.split('/')
+    mo, day, year = tmp[0].lstrip("0"), tmp[1].lstrip("0"), tmp[2]
+    anldate = mo + '/' + day + '/' + year
+
+    print(origin)
+    print(dest)
+    print(date_flight)
+    print(minlayover)
+    print(dne)
+    print(dnl)
+    print(ane)
+    print(anl)
+    print(anldate)
 
     print("Getting Flights for: -" + origin + "-" + dest + "-" + date_flight + "-" + str(minlayover) + "-")
      
-    df=itineraryBuilder('faa', origin, dest, date_flight, minlayover,\
+    df=itineraryBuilder('faa_2019_12', origin, dest, date_flight, anldate,\
+                        minlayover,\
                         dep_no_earlier = dne,\
                         dep_no_later = dnl,\
                         arr_no_earlier = ane,\
@@ -81,7 +102,7 @@ class FlightQueryHandler(RequestHandler):
       
     print(str(len(df.index)) + " records.")
 
-    final_cols = ['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
+    final_cols = ['ConnectCity', 'Initial Flight', 'Connection Time', 'Final Flight',\
                   'Trip Duration','Chance of Missed Connection', 'Time Lost if Missed',\
                   'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST']
 
@@ -91,17 +112,20 @@ class FlightQueryHandler(RequestHandler):
           df['SECOND_LEG_ORIG_CITY'] + "..Depart: " + df['FIRST_LEG_DEP_TIMESTAMP'].dt.strftime("%I:%M:%S %p") +\
               "..Arrive: " + df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime("%I:%M:%S %p")
       
-      df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,1)
-      df['Connection Layover'] = round(df['CONNECT_TIME']/60,1)
-      df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,1)
-      df['Trip Duration'] = round(df['TRIP_TIME']/60,1)
-      df['Chance of Missed Connection'] = round(df['RISK_MISSED_CONNECTION'],3)
+      df['Initial Flight'] = round(df['FIRST_FLIGHT_DURATION']/60,3)
+      df['Connection Time'] = round(df['CONNECT_TIME']/60,3)
+      df['Final Flight'] = round(df['SECOND_FLIGHT_DURATION']/60,3)
+      df['Trip Duration'] = round(df['TRIP_TIME']/60,3)
+      df['Chance of Missed Connection'] = round(df['RISK_MISSED_CONNECTION'],4)
       df['Time Lost if Missed'] = round(df['NEXT_FLIGHT_TIMELOSS']/60,1)
-      df['Itinerary Risk'] = round(df['TOTAL_RISK']/60,1)
+      #df['Itinerary Risk'] = round(df['TOTAL_RISK']/60,1)
+      df['Itinerary Risk'] = round(df['TOTAL_RISK'] / df['TRIP_TIME'], 3)
+      df['Arrival Time'] = df['SECOND_LEG_ARR_TIMESTAMP'].dt.strftime('%S').astype('int')
+
       
-      df_output = df[['ConnectCity', 'Initial Flight', 'Connection Layover', 'Final Flight',\
+      df_output = df[['ConnectCity', 'Initial Flight', 'Connection Time', 'Final Flight',\
                   'Trip Duration','Chance of Missed Connection', 'Time Lost if Missed',\
-                  'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST']]
+                  'Itinerary Risk', 'FIRST_LEG_ORIG', 'FIRST_LEG_DEST', 'SECOND_LEG_ORIG', 'SECOND_LEG_DEST', 'Arrival Time']]
       
     else:
        df_output = pd.DataFrame(columns=final_cols)

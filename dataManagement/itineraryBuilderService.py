@@ -32,9 +32,13 @@ class DestQueryHandler(RequestHandler):
     self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
 
   def get(self):
-    origin = listToString(self.get_arguments('origin'))
-    print("Getting Destinatins for Origin: " + origin)        
-    flight_date = "12/1/2019"
+    origin = listToString(self.get_arguments('origin'))    
+    #flight_date = "12/1/2019"
+    flight_date = listToString(self.get_arguments('date'))
+    #itinerary builder doesn't like leading zeroes in day
+    if flight_date.index('0') == 3:
+        flight_date = flight_date[:3] + flight_date[4:]
+    print("Getting Destinatins for Origin: " + origin + " on date: " + flight_date)        
     df = getValidDestinations('faa_2019_12', origin, flight_date)        
     dfjson = json.dumps(df.values.tolist())
     print(dfjson)

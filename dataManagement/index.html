@@ -1,0 +1,330 @@
+<html>
+<head>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="globals.js"></script>
+<script src="barchart.js"></script>
+<script src="map.js"></script>
+
+<script>
+    $( function() {
+      $( "#datepicker" ).datepicker();
+    } );
+
+    $(document).ready(function(){
+      $('input.timepicker').timepicker({});
+    });
+
+    function search() {
+        depart = document.getElementById("depart_airport").value;
+        depart_text = document.getElementById("depart_airport").options[document.getElementById('depart_airport').selectedIndex].text;
+        arrive = document.getElementById("arrive_airport").value;        
+        arrive_text = document.getElementById("arrive_airport").options[document.getElementById('arrive_airport').selectedIndex].text;       
+        depart_date = $('#datepicker').val();
+        min_connect_time = document.getElementById("minconnect").value;
+        order_text = 'duration'
+        //order_text = document.getElementById("order_by").value;
+        //console.log(`Order text = ${order_text}`)
+        depart_no_earlier = document.getElementById("departing_range").getAttribute("data-no_earlier")
+        depart_no_later = document.getElementById("departing_range").getAttribute("data-no_later")
+        arrive_no_earlier = document.getElementById("arriving_range").getAttribute("data-no_earlier")
+        arrive_no_later = document.getElementById("arriving_range").getAttribute("data-no_later")
+        arrive_no_later_date = document.getElementById("arriving_range").getAttribute("data-latest_date")
+
+        console.log("searching...");
+        console.log(depart);
+        console.log(arrive);
+        console.log(depart_date)
+        console.log(depart_no_earlier)
+        console.log(depart_no_later)
+        console.log(arrive_no_earlier)
+        console.log(arrive_no_later)
+        console.log(arrive_no_later_date)
+
+        tripheader = document.getElementById("trip_header");
+        tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + " on " + depart_date  + ", connecting through the following cities"; 
+        document.getElementById("order_by").selectedIndex = 0;
+        showFlights(depart, arrive, depart_date, min_connect_time, order_text, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later, arrive_no_later_date);       
+    }
+
+    $(document).ready(function(){
+      getDestinations();
+    });
+
+
+
+
+    function getDestinations() {
+      depart = document.getElementById("depart_airport").value;   
+      date = $('#datepicker').val(); 
+      if (date === "") {
+        date = "12/1/2019";
+      }
+      
+      $.get("destinations?origin=" + depart + "&date=" + date, function( data ) {
+        $( ".result" ).html( data );
+        jsonObj = JSON.parse(data.items)
+        var select = document.getElementById("arrive_airport");
+        for (row of jsonObj) {
+          var option = document.createElement('option');
+          option.text = row[1] + " - " + row[0]          
+          option.value = row[0];
+          arrive_airport.options.add(option, undefined);
+        }
+      });
+    }
+
+    function showFlights(depart, arrive, date, connect_time, order, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later_time, arrive_no_later_date) {        
+        url = "flights?origin=" + depart + "&dest=" + arrive + "&date=" + date + "&connect_time=" + connect_time 
+        + "&order=" + order + "&dne=" + depart_no_earlier + "&dnl=" + depart_no_later + "&ane=" + arrive_no_earlier + "&anl=" + arrive_no_later
+        + "&anldate=" + arrive_no_later_date;
+
+        encodedUri = encodeURI(url);
+        $.get(encodedUri, function( data ) {
+          $( ".result" ).html( data );
+          jsonObj = JSON.parse(data.items)
+          top_results = document.getElementById("top_results").value;
+          if (top_results.length == 0) {
+            top_results = 8
+          } else {
+            top_results = parseInt(top_results)
+          }
+          flights = jsonObj.slice(0, top_results);
+          console.log(flights)
+
+          if (flights.length == 0){
+            d3.selectAll("svg")
+              .remove()
+            document.getElementById("no_results").hidden = false
+
+            if (date.split('/')[0] != '12'){
+              document.getElementById("wrong_month_selected_note").hidden = false
+            }
+          }
+
+          else{
+            document.getElementById("no_results").hidden = true
+            document.getElementById("wrong_month_selected_note").hidden = true
+            drawBarChart(flights);
+            drawMap(flights, depart, arrive);
+          }
+        });
+    }
+
+    function reorganize(){
+      var selection = document.getElementById("order_by")
+      var orderby = selection.options[selection.selectedIndex].text
+      orderby = orderby.split('Minimum ')[1]
+      
+      flights.sort((x, y) => d3.ascending(x[orderby], y[orderby]))
+      drawBarChart(flights);
+      drawMap(flights);
+    }
+
+    function getVals(){
+      // Translate slider values to times
+
+      // identify which slider we're defining
+      var parent = this.parentNode;
+      var rangeID = parent.getAttribute('id')
+
+      // get the date from the "departure date" selection
+      var reqDate = $('#datepicker').val();
+
+      // make 12:01 AM on that date the starting date for each slider
+      var dateArray = getMonthDayYear(reqDate)
+      var time1 = new Date(dateArray)
+      var time2 = new Date(dateArray)
+
+      time1.setHours(0)
+      time1.setMinutes(1) // low end of slider range
+
+      if (rangeID == 'departing_slider_section'){
+        // for departure slider, allow only departures on day selected
+        time2.setHours(23)
+        time2.setMinutes(59) // high end of slider range
+      }
+
+      else if (rangeID == 'arriving_slider_section'){
+      // for arrival slider, allow for next day arrival
+        time2.setHours(47)
+        time2.setMinutes(59) // high end of slider range
+      }
+
+      else{
+        console.log("ERROR! Range ID on slider not found!")
+      }
+      
+      // define the format for time display on the screen
+      const formatTime = d3.timeFormat("%a %I:%M %p")
+      var t = d3.scaleTime().domain([1,100]).range([time1, time2])
+      
+      // get the slider values at present
+      var slides = parent.getElementsByTagName("input");
+        var slide1 = parseFloat( slides[0].value );
+        var slide2 = parseFloat( slides[1].value );
+      // Neither slider will clip the other, so make sure we determine which is larger
+      if( slide1 > slide2 ){ var tmp = slide2; slide2 = slide1; slide1 = tmp; }
+      
+      // display the transformed range on the screen
+      var displayElement = parent.getElementsByClassName("rangeValues")[0];
+          displayElement.innerHTML = formatTime(t(slide1)) + " - " + formatTime(t(slide2));
+
+      // stash the time ranges with the display element for the search() function to find
+      // format is designed to align to itineraryBuilder() requirements.
+      // note that itineraryBuilder() expects leading zeroes removed.
+
+      const ib_formatTime = d3.timeFormat("%H%M")
+      const ib_formatDate = d3.timeFormat("%m/%d/%Y")
+      var dne = ib_formatTime(t(slide1)).replace(/^0+/,'')
+      var dnl = ib_formatTime(t(slide2)).replace(/^0+/,'')
+      var latestDate = ib_formatDate(t(slide2)) // do not arrive later than this date
+
+      d3.select('#' + rangeID)
+        .selectAll('.rangeValues')
+        .attr('data-no_earlier', dne)
+        .attr('data-no_later', dnl)
+        .attr('data-latest_date', latestDate)
+    }
+
+
+    function initSliders() {
+      // takes place when window loads or if date changes
+      var sliderSections = document.getElementsByClassName("range-slider");
+          for( var x = 0; x < sliderSections.length; x++ ){
+            var sliders = sliderSections[x].getElementsByTagName("input");
+            for( var y = 0; y < sliders.length; y++ ){
+              if( sliders[y].type ==="range" ){
+                sliders[y].oninput = getVals;
+                // Manually trigger event first time to display values
+                sliders[y].oninput();
+              }
+            }
+          }
+    }
+
+
+  window.onload = initSliders
+
+
+  $(function()
+  {
+  $('#minconnect').on('input change', function(){
+            $(this).next($('#minconnectlabel')).html(`${this.value} mins.`);
+          });
+        $('#minconnectlabel').each(function(){
+            var value = $(this).prev().attr('value');
+            $(this).html(`${value} mins.`);
+          });  
+  })
+
+  function getMonthDayYear(myString){
+    // extract month, day, and year from a string
+    // used in any new Date() constructor
+    var myArray = myString.split("/")
+    var newArray = [parseInt(myArray[2]), parseInt(myArray[0]), parseInt(myArray[1])]
+    return newArray
+}
+  
+</script>
+</head>
+
+<body>
+<div class="header">
+    <h2>Flight Connections Risk Analyzer</h2>        
+</div>
+<br>
+<table>
+  <tr>
+  <td><label for="depart_airport">Departing From:</label></td>
+  <td>
+    <select name="depart_airport" id="depart_airport">
+    <option value="OMA">Omaha - OMA</option>
+    </select>
+  </td>
+  <Td colspan=2>
+    <label for="arrive_airport">Arriving At:</label>
+    <select name="arrive_airport" id="arrive_airport"></select>
+  </Td>
+  </tr>
+  <tr>
+    <td>Departure Date:</td>
+    <td><input type="text" id="datepicker" size="10" onchange="initSliders();getDestinations();" value="12/1/2019"></td>
+    <td>
+      Minimum Connection Time:
+    </td>
+    <td>
+      <input id="minconnect" value="45" min="45" max="180" step="1" type="range">
+      <span id="minconnectlabel"></span>
+    </td>
+    <td>Display Top Results: </td>
+    <td>
+    <select name="top_results" id="top_results">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8" selected="selected">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+    </td>
+  </tr>
+  <tr>
+    <td>Take-off from Omaha</td>
+    <td>
+      <section id="departing_slider_section", class="range-slider">
+        <span class="rangeValues", id="departing_range"></span>
+        <input value="1" min="1" max="100" step="1" type="range">
+        <input value="100" min="1" max="100" step="1" type="range">
+      </section>
+    </td>
+    <td>Landing at Destination</td>
+    <td>
+      <section id="arriving_slider_section", class="range-slider">
+        <span class="rangeValues" id="arriving_range"></span>
+        <input value="1" min="1" max="100" step="1" type="range">
+        <input value="100" min="1" max="100" step="1" type="range">
+      </section>
+    </td>
+  </tr>
+</table>
+<button type="submit" onclick="search()">Search For Flights<i class="fa fa-search"></i></button>
+<br>
+<br>
+<div hidden="hidden" id="order_by_div">Order Results By:
+  <select name="order_by" id="order_by", onchange="reorganize()">
+    <option value="duration">Minimum Trip Duration</option>
+    <option value="risk">Minimum Itinerary Risk</option>
+    <option value="min_connection_time">Minimum Connection Time</option>
+  </select>
+</div>
+<h3 id="trip_header"></h3>
+
+<div class="if_no_results" hidden="hidden" id="no_results">We're sorry. No itineraries matched with your search criteria. Try removing filters to see more results.
+</div>
+<br>
+<div class="if_no_results" hidden="hidden" id="wrong_month_selected_note">
+  Your problem may be the flight date you chose. Note that only flights itineraries from the month of December 2019 are active for this demo.
+</div>
+
+
+
+<div class="footer">
+    <p>Georgia Tech CSE 6242  -  Spring 2023  -  Team 161</p>
+  </div>
+</body>
+</html>

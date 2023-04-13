@@ -122,13 +122,14 @@
     }
 
     function reorganize(){
+      depart = document.getElementById("depart_airport").value;
+      arrive = document.getElementById("arrive_airport").value;    
       var selection = document.getElementById("order_by")
       var orderby = selection.options[selection.selectedIndex].text
-      orderby = orderby.split('Minimum ')[1]
-      
+      orderby = orderby.split('Minimum ')[1]      
       flights.sort((x, y) => d3.ascending(x[orderby], y[orderby]))
       drawBarChart(flights);
-      drawMap(flights);
+      drawMap(flights, depart, arrive);
     }
 
     function getVals(){

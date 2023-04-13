@@ -80,11 +80,6 @@ function ready(error, us, airports) {
             segment.risk_score = flight.risk_score;
             unique_segments.push(segment)
         } 
-        // else {
-        //     //keep a running average of segment's risk score based on all the flights running through that path
-        //     segment.risk_score = ((segment.risk_score * segment.count) + flight.risk_score) / (segment.count + 1)
-        //     segment.count += 1;
-        // }
     }
 
 

@@ -224,6 +224,11 @@ function drawBarChart (data) {
           // set to less than 0.1%.
           chance = '< 0.1'
         }
+        else if (chance > 50){
+          // avoid committing to "100%" chance.
+          // set to >50% to account for large outliers
+          chance = '> 50'
+        }
         var timeloss = d['Time Lost if Missed']
         
         tooltip.html(`Chance of Missed Connection: ${chance}%<br>Time Lost if Missed: ${timeloss} hours`)

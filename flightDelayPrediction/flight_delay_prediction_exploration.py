@@ -1,7 +1,9 @@
 # Imports
 import json
 import pandas as pd
+import numpy as np
 import time
+from pathlib import Path
 import pickle
 import math
 import plotly.graph_objects as go
@@ -14,6 +16,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LinearRegression, LogisticRegression
 
 
 def knn_evaluation(train_set, test_set, predictor_cols, result_col):
@@ -29,7 +32,7 @@ def knn_evaluation(train_set, test_set, predictor_cols, result_col):
             model.fit(train_set[predictor_cols], train_set[result_col])
             pred = model.predict(test_set[predictor_cols])
             end = time.time()
-            score = round(1 - (sum([abs(i - j) for i, j in zip(pred, test_set[result_col])]) / len(pred)), 5)
+            score = score_model(pred, test_set[result_col])
             total_time = round(end - start, 3)
             knn_output[key] = {'score': score, 'time': total_time}
 
@@ -53,7 +56,7 @@ def svm_evaluation(train_set, test_set, predictor_cols, result_col):
             model.fit(train_set[predictor_cols], train_set[result_col])
             pred = model.predict(test_set[predictor_cols])
             end = time.time()
-            score = round(1 - (sum([abs(i - j) for i, j in zip(pred, test_set[result_col])]) / len(pred)), 5)
+            score = score_model(pred, test_set[result_col])
             total_time = round(end - start, 3)
             svm_output[key] = {'score': score, 'time': total_time}
 
@@ -68,9 +71,9 @@ def nn_evaluation(train_set, test_set, predictor_cols, result_col):
     nn_output = dict()
     nn_output['predictor_columns'] = predictor_cols
 
-    for hl in [3, 5, 10, 15, 20, 30, 50, 100, 150]:
-        for act in ['identity', 'logistic', 'tanh', 'relu']:
-            for solv in ['lbfgs', 'sgd', 'adam']:
+    for hl in [10, 15, 20, 30, 50, 100]:
+        for act in ['identity', 'logistic']:
+            for solv in ['lbfgs']:
                 print('HL: {}, ACTIVATION: {}, SOLVER: {}'.format(hl, act, solv))
                 key = '{}_{}_{}'.format(act, solv, hl)
                 start = time.time()
@@ -78,7 +81,7 @@ def nn_evaluation(train_set, test_set, predictor_cols, result_col):
                 model.fit(train_set[predictor_cols], train_set[result_col])
                 pred = model.predict(test_set[predictor_cols])
                 end = time.time()
-                score = round(1 - (sum([abs(i - j) for i, j in zip(pred, test_set[result_col])]) / len(pred)), 5)
+                score = score_model(pred, test_set[result_col])
                 total_time = round(end - start, 3)
                 nn_output[key] = {'score': score, 'time': total_time}
 
@@ -93,7 +96,7 @@ def rf_evaluation(train_set, test_set, predictor_cols, result_col):
     rf_output = dict()
     rf_output['predictor_columns'] = predictor_cols
 
-    for trees in [5, 10, 20, 50, 100, 150, 200, 300, 500]:
+    for trees in [50, 100, 150, 200]:
         for crit in ['gini', 'entropy']:
             print('TREES: {}, CRITERION: {}'.format(trees, crit))
             key = '{}_{}'.format(crit, trees)
@@ -102,7 +105,7 @@ def rf_evaluation(train_set, test_set, predictor_cols, result_col):
             model.fit(train_set[predictor_cols], train_set[result_col])
             pred = model.predict(test_set[predictor_cols])
             end = time.time()
-            score = round(1 - (sum([abs(i - j) for i, j in zip(pred, test_set[result_col])]) / len(pred)), 5)
+            score = score_model(pred, test_set[result_col])
             total_time = round(end - start, 3)
             rf_output[key] = {'score': score, 'time': total_time}
 
@@ -110,6 +113,95 @@ def rf_evaluation(train_set, test_set, predictor_cols, result_col):
 
     with open('model_results/rf_results.json', 'w') as file:
         json.dump(rf_output, file, indent=2)
+
+
+def linear_evaluation(train_set, test_set, predictor_cols, result_col):
+    print('\nLinear Evaluation\n')
+    lin_output = dict()
+    lin_output['predictor_columns'] = predictor_cols
+
+    start = time.time()
+    model = KNeighborsClassifier()
+    model.fit(train_set[predictor_cols], train_set[result_col])
+    pred = model.predict(test_set[predictor_cols])
+    end = time.time()
+    score = score_model(pred, test_set[result_col])
+    total_time = round(end - start, 3)
+    lin_output['output'] = {'score': score, 'time': total_time}
+
+    print(lin_output)
+
+    with open('model_results/linear_results.json', 'w') as file:
+        json.dump(lin_output, file, indent=2)
+    return lin_output
+
+
+def logistic_evaluation(train_set, test_set, predictor_cols, result_col):
+    print('\nLogistic Evaluation\n')
+    log_output = dict()
+    log_output['predictor_columns'] = predictor_cols
+    for c in [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0]:
+        for pen in ['l2', 'none']:
+            print('C: {}, PEN: {}'.format(c, pen))
+            key = '{}_{}'.format(c, pen)
+            start = time.time()
+            model = LogisticRegression(C=c, penalty=pen)
+            model.fit(train_set[predictor_cols], train_set[result_col])
+            pred = model.predict_proba(test_set[predictor_cols])
+            end = time.time()
+            score = score_model(pred, test_set[result_col])
+            total_time = round(end - start, 3)
+            log_output[key] = {'score': score, 'time': total_time}
+
+    print(log_output)
+
+    with open('model_results/logistic_results.json', 'w') as file:
+        json.dump(log_output, file, indent=2)
+    return log_output
+
+
+def score_model(pred, act):
+    tp, fn, tn, fp = 0, 0, 0, 0
+
+    for p, a in zip(pred, act):
+
+        try:
+            p = p[1]
+        except:
+            pass
+
+        if p < 0.5:
+            if a == 0:
+                tn += 1
+            elif a == 1:
+                fn += 1
+        elif p >= 0.5:
+            if a == 0:
+                fp += 1
+            elif a == 1:
+                tp += 1
+
+    acc = (tp + tn) / (tp + fp + tn + fn)
+    if tp + fp > 0:
+        prec = tp / (tp + fp)
+    else:
+        prec = None
+    if tp + fn > 0:
+        recall = tp / (tp + fn)
+    else:
+        recall = None
+    if fn + fp > 0:
+        fnr = fn / (fn + fp)
+    else:
+        fnr = None
+    if not isinstance(prec, type(None)) and not isinstance(recall, type(None)):
+        f1 = (2 * prec * recall) / (prec + recall)
+    else:
+        f1 = None
+    out_dict = {'tp': tp, 'fn': fn, 'tn': tn, 'fp': fp,
+                'accuracy': acc, 'precision': prec, 'recall': recall,
+                'fnr': fnr, 'f1': f1}
+    return out_dict
 
 
 def security_delay_explore(df):
@@ -215,7 +307,7 @@ def predictor_comparison(df, predictor_cols, result_col):
 if __name__ == '__main__':
     test_pct = 0.2
 
-    data_fn = 'dataset/T_ONTIME_REPORTING.csv'
+    data_fn = r'C:\Users\Paul\OneDrive - Georgia Institute of Technology\Grad_School\Courses\CSE6242\Projects\scripts\dataset/T_ONTIME_REPORTING.csv'
     df = pd.read_csv(data_fn)
 
     predictor_cols = ['MONTH', 'DAY_OF_WEEK', 'DAY', 'YEAR', 'OP_UNIQUE_CARRIER_CAT',
@@ -245,17 +337,123 @@ if __name__ == '__main__':
 
     # KNN Evaluation
     # knn_evaluation(train_set_unscaled, test_set_unscaled, predictor_cols, result_col)
-    explore_knn_model(train_set, test_set, predictor_cols, result_col)
+    # explore_knn_model(train_set, test_set, predictor_cols, result_col)
 
-    # SVM Evaluation
+    # KNN Evaluation
+    if not Path('model_results', 'knn_results.json').exists():
+        knn_out = knn_evaluation(train_set_unscaled, test_set_unscaled, predictor_cols, result_col)
+    else:
+        with open('model_results/knn_results.json', 'r') as file:
+            knn_out = json.load(file)
+    # explore_knn_model(train_set, test_set, predictor_cols, result_col)
+
+    # # SVM Evaluation
     # svm_evaluation(train_set, test_set, predictor_cols, result_col)
+
+    # Linear Regression Evaluation
+    if not Path('model_results', 'linear_results.json').exists():
+        lin_out = linear_evaluation(train_set, test_set, predictor_cols, result_col)
+    else:
+        with open('model_results/linear_results.json', 'r') as file:
+            lin_out = json.load(file)
+
+    # Logistic Regression Evaluation
+    if not Path('model_results', 'logistic_results.json').exists():
+        log_out = logistic_evaluation(train_set, test_set, predictor_cols, result_col)
+    else:
+        with open('model_results/logistic_results.json', 'r') as file:
+            log_out = json.load(file)
 
     # Random Forest Evaluation
     # rf_evaluation(train_set, test_set, predictor_cols, result_col)
+    if not Path('model_results', 'rf_results.json').exists():
+        rf_out = rf_evaluation(train_set, test_set, predictor_cols, result_col)
+    else:
+        with open('model_results/rf_results.json', 'r') as file:
+            rf_out = json.load(file)
 
-    # Neural Network Evaluation
-    # nn_evaluation(train_set, test_set, predictor_cols, result_col)
+        # Neural Network Evaluation
+        # nn_evaluation(train_set, test_set, predictor_cols, result_col)
+    if not Path('model_results', 'nn_results.json').exists():
+        nn_out = nn_evaluation(train_set, test_set, predictor_cols, result_col)
+    else:
+        with open('model_results/nn_results.json', 'r') as file:
+            nn_out = json.load(file)
 
+    score_compare = dict(model=[], tp=[], fn=[], tn=[], fp=[], accuracy=[], precision=[], recall=[], fnr=[], f1=[])
+
+    for k, v in knn_out.items():
+        if 'predictor' in k:
+            continue
+        score_compare['model'].append('KNN_{}'.format(k))
+        score_compare['tp'].append(v['score']['tp'])
+        score_compare['fn'].append(v['score']['fn'])
+        score_compare['tn'].append(v['score']['tn'])
+        score_compare['fp'].append(v['score']['fp'])
+        score_compare['accuracy'].append(v['score']['accuracy'])
+        score_compare['precision'].append(v['score']['precision'])
+        score_compare['recall'].append(v['score']['recall'])
+        score_compare['fnr'].append(v['score']['fnr'])
+        score_compare['f1'].append(v['score']['f1'])
+
+    for k, v in lin_out.items():
+        if 'predictor' in k:
+            continue
+        score_compare['model'].append('LIN_{}'.format(k))
+        score_compare['tp'].append(v['score']['tp'])
+        score_compare['fn'].append(v['score']['fn'])
+        score_compare['tn'].append(v['score']['tn'])
+        score_compare['fp'].append(v['score']['fp'])
+        score_compare['accuracy'].append(v['score']['accuracy'])
+        score_compare['precision'].append(v['score']['precision'])
+        score_compare['recall'].append(v['score']['recall'])
+        score_compare['fnr'].append(v['score']['fnr'])
+        score_compare['f1'].append(v['score']['f1'])
+
+    for k, v in log_out.items():
+        if 'predictor' in k:
+            continue
+        score_compare['model'].append('LOG_{}'.format(k))
+        score_compare['tp'].append(v['score']['tp'])
+        score_compare['fn'].append(v['score']['fn'])
+        score_compare['tn'].append(v['score']['tn'])
+        score_compare['fp'].append(v['score']['fp'])
+        score_compare['accuracy'].append(v['score']['accuracy'])
+        score_compare['precision'].append(v['score']['precision'])
+        score_compare['recall'].append(v['score']['recall'])
+        score_compare['fnr'].append(v['score']['fnr'])
+        score_compare['f1'].append(v['score']['f1'])
+
+    for k, v in rf_out.items():
+        if 'predictor' in k:
+            continue
+        score_compare['model'].append('RF_{}'.format(k))
+        score_compare['tp'].append(v['score']['tp'])
+        score_compare['fn'].append(v['score']['fn'])
+        score_compare['tn'].append(v['score']['tn'])
+        score_compare['fp'].append(v['score']['fp'])
+        score_compare['accuracy'].append(v['score']['accuracy'])
+        score_compare['precision'].append(v['score']['precision'])
+        score_compare['recall'].append(v['score']['recall'])
+        score_compare['fnr'].append(v['score']['fnr'])
+        score_compare['f1'].append(v['score']['f1'])
+
+    for k, v in nn_out.items():
+        if 'predictor' in k:
+            continue
+        score_compare['model'].append('NN_{}'.format(k))
+        score_compare['tp'].append(v['score']['tp'])
+        score_compare['fn'].append(v['score']['fn'])
+        score_compare['tn'].append(v['score']['tn'])
+        score_compare['fp'].append(v['score']['fp'])
+        score_compare['accuracy'].append(v['score']['accuracy'])
+        score_compare['precision'].append(v['score']['precision'])
+        score_compare['recall'].append(v['score']['recall'])
+        score_compare['fnr'].append(v['score']['fnr'])
+        score_compare['f1'].append(v['score']['f1'])
+
+    out_df = pd.DataFrame(score_compare)
+    out_df.to_csv('model_results/overall_score_comparison.csv')
     # Security Delay Exploration
     # security_delay_explore(df)
     # sanity_check(test_set)

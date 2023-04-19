@@ -44,7 +44,7 @@ def itineraryBuilder(db_name: str,\
     if orderby not in ['risk', 'duration', 'earliest_arrival', 'min_connection_time']:
         raise ValueError('Please order by either "risk", "duration", "earliest_arrival", or "min_connect_time".')
     
-    df = queryFlights(db_name, ORIG, DEST, DATE, dep_no_earlier, dep_no_later, arr_no_earlier, arr_no_later)
+    df = queryFlights(db_name, ORIG, DEST, DATE, arr_no_later_date, dep_no_earlier, dep_no_later, arr_no_earlier, arr_no_later)
 
     if df.shape[0] > 0:
         # only run the transformations below if flights are returned
@@ -98,12 +98,12 @@ def itineraryBuilder(db_name: str,\
         df['overnight_bool_3'] = pd.Series([arr < dept for (arr, dept) in next_best_zip]).astype(int)
 
         #check to see if traveler is ok with trip extending to next day
-        if DATE == arr_no_later_date:
+        '''if DATE == arr_no_later_date:
             ## drop if date changed during either flight, or if the date changed between connection flights
             df['overnight_connection'] = pd.Series(df['FIRST_LEG_DATE'] != df['SECOND_LEG_DATE'])
 
             any_overnight = (df['overnight_bool_1'] + df['overnight_bool_2'] + df['overnight_connection']).astype('bool')
-            df = df.loc[any_overnight == False, :]
+            df = df.loc[any_overnight == False, :]'''
 
         df['FIRST_LEG_ARR_TIMESTAMP'] = df['FIRST_LEG_ARR_TIMESTAMP'] + df['overnight_bool_1'].astype('timedelta64[D]')
         df['SECOND_LEG_ARR_TIMESTAMP'] = df['SECOND_LEG_ARR_TIMESTAMP'] + df['overnight_bool_2'].astype('timedelta64[D]')
@@ -117,9 +117,6 @@ def itineraryBuilder(db_name: str,\
         df['TRIP_TIME'] = (df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_DEP_TIMESTAMP']).dt.total_seconds()/60
 
         df = df.loc[df.loc[:, 'CONNECT_TIME'].between(tc, max_tc)]
-
-        #num_rows = df.shape[0]
-        #df['RISK_MISSED_CONNECTION'] = dummyMLResult(num_rows)
 
         ## determine appropriate risk factor for each flight
         ## risk is established as a step function
@@ -179,6 +176,7 @@ def queryFlights(db_name: str,\
                     ORIG: str,\
                     DEST: str,\
                     DATE: str,\
+                    arr_no_later_date: str,\
                     dep_no_earlier = '1',\
                     dep_no_later = '2359',\
                     arr_no_earlier = '1',\
@@ -204,8 +202,18 @@ def queryFlights(db_name: str,\
     origin = "'" + ORIG + "'"
     destination = "'" + DEST + "'"
     flight_date = "'" + DATE + "'"
-    next_date = "'" + getNextDate(DATE) + "'"
-    third_date = "'" + getNextDate(getNextDate(DATE)) + "'"
+   
+    if DATE == arr_no_later_date:
+        # restrict the date range per user request
+         # we will need to assess the arrival time range after initial query
+        next_date = flight_date
+        third_date = getNextDate(DATE) #third date is needed for building next best itineraries only
+
+    else:
+        # no need to restrict the date range
+        # we will need to assess the arrival time range after initial query
+        next_date = "'" + getNextDate(DATE) + "'"
+        third_date = "'" + getNextDate(getNextDate(DATE)) + "'"
 
     conn = sqlite3.connect(db_name)
 
@@ -272,9 +280,7 @@ def queryFlights(db_name: str,\
                     WHERE
                         Origin <> {origin} AND
                         Dest = {destination} AND
-                        FlightDate IN ({flight_date}, {next_date}, {third_date}) AND
-                        ArrivalTime >= CAST({arr_no_earlier} AS INT) AND
-                        ArrivalTime <= CAST({arr_no_later} AS INT)) AS finish
+                        FlightDate IN ({flight_date}, {next_date}, {third_date})) AS finish
                 WHERE
                     FIRST_LEG_DEST = SECOND_LEG_ORIG AND
                     FIRST_LEG_AIRLINE = SECOND_LEG_AIRLINE
@@ -284,6 +290,7 @@ def queryFlights(db_name: str,\
 
     conn.close()
 
+    # now we go and get the next best flights
     df_partition = df[['SECOND_LEG_ORIG', 'SECOND_LEG_DATE', 'SECOND_LEG_DEP_TIME', 'SECOND_LEG_ARR_TIME']]
 
     #return getNextBest(df_partition, returnType = 'new_only')
@@ -291,6 +298,15 @@ def queryFlights(db_name: str,\
 
     df_next_best = pd.concat([df, next_best_flights], axis=1)
     df_next_best = df_next_best[df_next_best['NEXT_BEST_SECOND_LEG_DATE'].notnull()]
+
+    # now we need to apply the time filter
+    # no need if the two dates are equal, that was part of original query
+    # compare against original values for arr_no_earlier, arr_no_later
+    if DATE == arr_no_later_date:
+        df_next_best = df_next_best[(df_next_best['SECOND_LEG_ARR_TIME'].between(int(arr_no_earlier), int(arr_no_later))) & (df_next_best['SECOND_LEG_DATE'] == DATE)]
+    else:
+        df_next_best = df_next_best[(df_next_best['SECOND_LEG_ARR_TIME'].between(int(arr_no_earlier), int(arr_no_later))) | (df_next_best['SECOND_LEG_DATE'] == DATE)]
+    
     df_next_best = df_next_best.astype({'NEXT_BEST_SECOND_LEG_DEP_TIME': 'int',\
                                         'NEXT_BEST_SECOND_LEG_ARR_TIME': 'int'})
     df_next_best = df_next_best.astype({'FIRST_LEG_DEP_TIME': 'str',\
@@ -307,8 +323,12 @@ def queryFlights(db_name: str,\
                                         'FIRST_LEG_PRED90': 'float',\
                                         'FIRST_LEG_PRED105': 'float',\
                                         'FIRST_LEG_PRED120': 'float'})
+    
+    df_next_best = df_next_best[df_next_best['SECOND_LEG_DATE'] != third_date.strip("'")]
 
-    return df_next_best.reset_index(drop=True)
+    df_next_best.reset_index(drop=True, inplace=True)
+
+    return df_next_best
 
 
 def getValidDestinations(db_name: str, ORIG: str, DATE: str):

@@ -1,213 +1,364 @@
 Origin,OriginCityName,Timezone,Daylight Savings,TimeDelta
-DTW,"Detroit, MI",US/Eastern,Yes,1
-CMH,"Columbus, OH",US/Eastern,Yes,1
-BOS,"Boston, MA",US/Eastern,Yes,1
-MCI,"Kansas City, MO",US/Central,Yes,2
-JFK,"New York, NY",US/Eastern,Yes,1
-DCA,"Washington, DC",US/Eastern,Yes,1
-HHH,"Hilton Head, SC",US/Eastern,Yes,1
-LGA,"New York, NY",US/Eastern,Yes,1
-PIT,"Pittsburgh, PA",US/Eastern,Yes,1
-ORD,"Chicago, IL",US/Central,Yes,2
-JAX,"Jacksonville, FL",US/Eastern,Yes,1
-CLT,"Charlotte, NC",US/Eastern,Yes,1
-LEX,"Lexington, KY",US/Eastern,Yes,1
-BNA,"Nashville, TN",US/Central,Yes,2
-IND,"Indianapolis, IN",US/Eastern,Yes,1
-MSN,"Madison, WI",US/Central,Yes,2
-OKC,"Oklahoma City, OK",US/Central,Yes,2
-BUF,"Buffalo, NY",US/Eastern,Yes,1
-ATL,"Atlanta, GA",US/Eastern,Yes,1
-MVY,"Martha's Vineyard, MA",US/Eastern,Yes,1
-SDF,"Louisville, KY",US/Eastern,Yes,1
-RIC,"Richmond, VA",US/Eastern,Yes,1
-PHL,"Philadelphia, PA",US/Eastern,Yes,1
-EWR,"Newark, NJ",US/Eastern,Yes,1
-RDU,"Raleigh/Durham, NC",US/Eastern,Yes,1
-SAV,"Savannah, GA",US/Eastern,Yes,1
-BWI,"Baltimore, MD",US/Eastern,Yes,1
-PWM,"Portland, ME",US/Eastern,Yes,1
-PNS,"Pensacola, FL",US/Eastern,Yes,1
-OMA,"Omaha, NE",US/Central,Yes,2
-CLE,"Cleveland, OH",US/Eastern,Yes,1
-CHS,"Charleston, SC",US/Eastern,Yes,1
-XNA,"Fayetteville, AR",US/Central,Yes,2
-MKE,"Milwaukee, WI",US/Central,Yes,2
-MOB,"Mobile, AL",US/Central,Yes,2
-MLI,"Moline, IL",US/Central,Yes,2
-CID,"Cedar Rapids/Iowa City, IA",US/Central,Yes,2
-BGR,"Bangor, ME",US/Eastern,Yes,1
-CHO,"Charlottesville, VA",US/Eastern,Yes,1
-BTV,"Burlington, VT",US/Eastern,Yes,1
-MSP,"Minneapolis, MN",US/Central,Yes,2
-AUS,"Austin, TX",US/Central,Yes,2
-CVG,"Cincinnati, OH",US/Eastern,Yes,1
-MGM,"Montgomery, AL",US/Central,Yes,2
-STL,"St. Louis, MO",US/Central,Yes,2
-LFT,"Lafayette, LA",US/Central,Yes,2
-ILM,"Wilmington, NC",US/Eastern,Yes,1
-AVL,"Asheville, NC",US/Eastern,Yes,1
-CRW,"Charleston/Dunbar, WV",US/Eastern,Yes,1
-BQK,"Brunswick, GA",US/Eastern,Yes,1
-ORF,"Norfolk, VA",US/Eastern,Yes,1
-CAE,"Columbia, SC",US/Eastern,Yes,1
-LAN,"Lansing, MI",US/Eastern,Yes,1
-AGS,"Augusta, GA",US/Eastern,Yes,1
-GSP,"Greer, SC",US/Eastern,Yes,1
-TYS,"Knoxville, TN",US/Eastern,Yes,1
-SHV,"Shreveport, LA",US/Central,Yes,2
-CWA,"Mosinee, WI",US/Central,Yes,2
-HPN,"White Plains, NY",US/Eastern,Yes,1
-ROC,"Rochester, NY",US/Eastern,Yes,1
-DSM,"Des Moines, IA",US/Central,Yes,2
-ALB,"Albany, NY",US/Eastern,Yes,1
-TVC,"Traverse City, MI",US/Eastern,Yes,1
-MEM,"Memphis, TN",US/Central,Yes,2
-GRR,"Grand Rapids, MI",US/Eastern,Yes,1
-AZO,"Kalamazoo, MI",US/Eastern,Yes,1
-ABY,"Albany, GA",US/Eastern,Yes,1
-DHN,"Dothan, AL",US/Central,Yes,2
-GSO,"Greensboro/High Point, NC",US/Eastern,Yes,1
-MYR,"Myrtle Beach, SC",US/Eastern,Yes,1
-ACK,"Nantucket, MA",US/Eastern,Yes,1
-TRI,"Bristol/Johnson City/Kingsport, TN",US/Eastern,Yes,1
-CHA,"Chattanooga, TN",US/Eastern,Yes,1
-MBS,"Saginaw/Bay City/Midland, MI",US/Eastern,Yes,1
-VLD,"Valdosta, GA",US/Eastern,Yes,1
-ROA,"Roanoke, VA",US/Eastern,Yes,1
-BHM,"Birmingham, AL",US/Central,Yes,2
-PVD,"Providence, RI",US/Eastern,Yes,1
-GPT,"Gulfport/Biloxi, MS",US/Central,Yes,2
-GTR,"Columbus, MS",US/Central,Yes,2
-MLU,"Monroe, LA",US/Central,Yes,2
-FAY,"Fayetteville, NC",US/Eastern,Yes,1
-BMI,"Bloomington/Normal, IL",US/Central,Yes,2
-ATW,"Appleton, WI",US/Central,Yes,2
-SYR,"Syracuse, NY",US/Eastern,Yes,1
-OAJ,"Jacksonville/Camp Lejeune, NC",US/Eastern,Yes,1
-CSG,"Columbus, GA",US/Eastern,Yes,1
-EVV,"Evansville, IN",US/Central,Yes,2
-AEX,"Alexandria, LA",US/Central,Yes,2
-BDL,"Hartford, CT",US/Eastern,Yes,1
-DAY,"Dayton, OH",US/Eastern,Yes,1
-ORH,"Worcester, MA",US/Eastern,Yes,1
-DLH,"Duluth, MN",US/Central,Yes,2
-BGM,"Binghamton, NY",US/Eastern,Yes,1
-FSD,"Sioux Falls, SD",US/Central,Yes,2
-IAD,"Washington, DC",US/Eastern,Yes,1
-DFW,"Dallas/Fort Worth, TX",US/Central,Yes,2
-LAX,"Los Angeles, CA",US/Pacific,Yes,4
-MCO,"Orlando, FL",US/Eastern,Yes,1
-BZN,"Bozeman, MT",US/Mountain,Yes,3
-LAS,"Las Vegas, NV",US/Pacific,Yes,4
-BIL,"Billings, MT",US/Mountain,Yes,3
-SFO,"San Francisco, CA",US/Pacific,Yes,4
-SEA,"Seattle, WA",US/Pacific,Yes,4
-SJU,"San Juan, PR",America/Puerto_Rico,No,0
-HNL,"Honolulu, HI",US/Hawaii,No,6
-SAN,"San Diego, CA",US/Pacific,Yes,4
-OGG,"Kahului, HI",US/Hawaii,No,6
-SMF,"Sacramento, CA",US/Pacific,Yes,4
-KOA,"Kona, HI",US/Hawaii,No,6
-ANC,"Anchorage, AK",US/Alaska,Yes,5
-SLC,"Salt Lake City, UT",US/Mountain,Yes,3
-PDX,"Portland, OR",US/Pacific,Yes,4
-IAH,"Houston, TX",US/Central,Yes,2
-PHX,"Phoenix, AZ",US/Arizona,No,3
-JAC,"Jackson, WY",US/Mountain,Yes,3
-TPA,"Tampa, FL",US/Eastern,Yes,1
-RSW,"Fort Myers, FL",US/Eastern,Yes,1
-FCA,"Kalispell, MT",US/Mountain,Yes,3
-DEN,"Denver, CO",US/Mountain,Yes,3
-JAN,"Jackson/Vicksburg, MS",US/Central,Yes,2
-MSY,"New Orleans, LA",US/Central,Yes,2
-LIT,"Little Rock, AR",US/Central,Yes,2
-MLB,"Melbourne, FL",US/Eastern,Yes,1
-SRQ,"Sarasota/Bradenton, FL",US/Eastern,Yes,1
-MIA,"Miami, FL",US/Eastern,Yes,1
-FLL,"Fort Lauderdale, FL",US/Eastern,Yes,1
-SNA,"Santa Ana, CA",US/Pacific,Yes,4
-GEG,"Spokane, WA",US/Pacific,Yes,4
-TLH,"Tallahassee, FL",US/Eastern,Yes,1
-PBI,"West Palm Beach/Palm Beach, FL",US/Eastern,Yes,1
-STT,"Charlotte Amalie, VI",America/Virgin,No,0
-TUS,"Tucson, AZ",US/Arizona,No,3
-GNV,"Gainesville, FL",US/Eastern,Yes,1
-BOI,"Boise, ID",US/Mountain,Yes,3
-TUL,"Tulsa, OK",US/Central,Yes,2
-BTR,"Baton Rouge, LA",US/Central,Yes,2
-SAT,"San Antonio, TX",US/Central,Yes,2
-ECP,"Panama City, FL",US/Eastern,Yes,1
-HSV,"Huntsville, AL",US/Central,Yes,2
-RNO,"Reno, NV",US/Pacific,Yes,4
-DAB,"Daytona Beach, FL",US/Eastern,Yes,1
-PSC,"Pasco/Kennewick/Richland, WA",US/Pacific,Yes,4
-ABQ,"Albuquerque, NM",US/Mountain,Yes,3
-ONT,"Ontario, CA",US/Pacific,Yes,4
-LSE,"La Crosse, WI",US/Central,Yes,2
-RAP,"Rapid City, SD",US/Mountain,Yes,3
-IDA,"Idaho Falls, ID",US/Mountain,Yes,3
-FWA,"Fort Wayne, IN",US/Eastern,Yes,1
-COS,"Colorado Springs, CO",US/Mountain,Yes,3
-MFR,"Medford, OR",US/Pacific,Yes,4
-RDM,"Bend/Redmond, OR",US/Pacific,Yes,4
-SBN,"South Bend, IN",US/Eastern,Yes,1
-SJC,"San Jose, CA",US/Pacific,Yes,4
-BUR,"Burbank, CA",US/Pacific,Yes,4
-HLN,"Helena, MT",US/Mountain,Yes,3
-GTF,"Great Falls, MT",US/Mountain,Yes,3
-MQT,"Marquette, MI",US/Eastern,Yes,1
-GRB,"Green Bay, WI",US/Central,Yes,2
-MOT,"Minot, ND",US/Central,Yes,2
-LGB,"Long Beach, CA",US/Pacific,Yes,4
-OAK,"Oakland, CA",US/Pacific,Yes,4
-FAR,"Fargo, ND",US/Central,Yes,2
-SUN,"Sun Valley/Hailey/Ketchum, ID",US/Mountain,Yes,3
-BIS,"Bismarck/Mandan, ND",US/Central,Yes,2
-FAT,"Fresno, CA",US/Pacific,Yes,4
-GFK,"Grand Forks, ND",US/Central,Yes,2
-RST,"Rochester, MN",US/Central,Yes,2
-PSP,"Palm Springs, CA",US/Pacific,Yes,4
-MSO,"Missoula, MT",US/Mountain,Yes,3
-MDW,"Chicago, IL",US/Central,Yes,2
-ICT,"Wichita, KS",US/Central,Yes,2
-LWS,"Lewiston, ID",US/Pacific,Yes,4
-EUG,"Eugene, OR",US/Pacific,Yes,4
-SIT,"Sitka, AK",US/Alaska,Yes,5
+ABI,"Abilene, TX",US/Central,Yes,2
+ACT,"Waco, TX",US/Central,Yes,2
+ACY,"Atlantic City, NJ",US/Eastern,Yes,1
+ADK,"Adak Island, AK",US/Alaska,Yes,5
+ADQ,"Kodiak, AK",US/Alaska,Yes,5
+ALO,"Waterloo, IA",US/Central,Yes,2
+ART,"Watertown, NY",US/Eastern,Yes,1
+ATY,"Watertown, SD",US/Central,Yes,2
+AZA,"Phoenix, AZ",US/Arizona,No,3
+BET,"Bethel, AK",US/Alaska,Yes,5
+BFM,"Mobile, AL",US/Central,Yes,2
+BLV,"Belleville, IL",US/Central,Yes,2
+BPT,"Beaumont/Port Arthur, TX",US/Central,Yes,2
+BRW,"Barrow, AK",US/Alaska,Yes,5
+CDV,"Cordova, AK",US/Alaska,Yes,5
+CYS,"Cheyenne, WY",US/Mountain,Yes,3
+DBQ,"Dubuque, IA",US/Central,Yes,2
+DRT,"Del Rio, TX",US/Central,Yes,2
+DVL,"Devils Lake, ND",US/Central,Yes,2
+EAR,"Kearney, NE",US/Central,Yes,2
+FLG,"Flagstaff, AZ",US/Arizona,No,3
+FLO,"Florence, SC",US/Eastern,Yes,1
+GCK,"Garden City, KS",US/Central,Yes,2
+GGG,"Longview, TX",US/Central,Yes,2
+HGR,"Hagerstown, MD",US/Eastern,Yes,1
+HVN,"New Haven, CT",US/Eastern,Yes,1
+IAG,"Niagara Falls, NY",US/Eastern,Yes,1
+IPT,"Williamsport, PA",US/Eastern,Yes,1
+ITO,"Hilo, HI",US/Hawaii,No,6
+JHM,"Kapalua, HI",US/Hawaii,No,6
+JLN,"Joplin, MO",US/Central,Yes,2
+LAW,"Lawton/Fort Sill, OK",US/Central,Yes,2
+LBE,"Latrobe, PA",US/Eastern,Yes,1
+LBF,"North Platte, NE",US/Central,Yes,2
+LBL,"Liberal, KS",US/Central,Yes,2
+LCK,"Columbus, OH",US/Eastern,Yes,1
+LNY,"Lanai, HI",US/Hawaii,No,6
+LWB,"Lewisburg, WV",US/Eastern,Yes,1
+LYH,"Lynchburg, VA",US/Eastern,Yes,1
+MEI,"Meridian, MS",US/Central,Yes,2
+MHK,"Manhattan/Ft. Riley, KS",US/Central,Yes,2
+MKK,"Hoolehua, HI",US/Hawaii,No,6
+MMH,"Mammoth Lakes, CA",US/Pacific,Yes,4
+OGD,"Ogden, UT",US/Mountain,Yes,3
+OGS,"Ogdensburg, NY",US/Eastern,Yes,1
+OME,"Nome, AK",US/Alaska,Yes,5
+OTZ,"Kotzebue, AK",US/Alaska,Yes,5
+OWB,"Owensboro, KY",US/Eastern,Yes,1
+PAE,"Everett, WA",US/Pacific,Yes,4
+PBG,"Plattsburgh, NY",US/Eastern,Yes,1
+PGD,"Punta Gorda, FL",US/Eastern,Yes,1
+PGV,"Greenville, NC",US/Eastern,Yes,1
+PIB,"Hattiesburg/Laurel, MS",US/Central,Yes,2
+PIE,"St. Petersburg, FL",US/Eastern,Yes,1
+PIR,"Pierre, SD",US/Central,Yes,2
+PQI,"Presque Isle/Houlton, ME",US/Eastern,Yes,1
+PRC,"Prescott, AZ",US/Arizona,No,3
+PSE,"Ponce, PR",America/Puerto_Rico,No,0
+PSG,"Petersburg, AK",US/Alaska,Yes,5
+PSM,"Portsmouth, NH",US/Eastern,Yes,1
+PVU,"Provo, UT",US/Mountain,Yes,3
+RFD,"Rockford, IL",US/Central,Yes,2
+ROW,"Roswell, NM",US/Mountain,Yes,3
+SBY,"Salisbury, MD",US/Eastern,Yes,1
+SCC,"Deadhorse, AK",US/Alaska,Yes,5
+SFB,"Sanford, FL",US/Eastern,Yes,1
+SHD,"Staunton, VA",US/Eastern,Yes,1
+SJT,"San Angelo, TX",US/Central,Yes,2
+SLN,"Salina, KS",US/Central,Yes,2
+SPS,"Wichita Falls, TX",US/Central,Yes,2
+STC,"St. Cloud, MN",US/Central,Yes,2
+SUX,"Sioux City, IA",US/Central,Yes,2
+SWO,"Stillwater, OK",US/Central,Yes,2
+TTN,"Trenton, NJ",US/Eastern,Yes,1
+TXK,"Texarkana, AR",US/Central,Yes,2
+TYR,"Tyler, TX",US/Central,Yes,2
+UIN,"Quincy, IL",US/Central,Yes,2
+USA,"Concord, NC",US/Eastern,Yes,1
+VEL,"Vernal, UT",US/Mountain,Yes,3
+WRG,"Wrangell, AK",US/Alaska,Yes,5
+YAK,"Yakutat, AK",US/Alaska,Yes,5
+YUM,"Yuma, AZ",US/Arizona,No,3
+BQN,"Agudilla, PR",America/Puerto_Rico,No,0
+CAK,"Akron, OH",US/Eastern,Yes,1
+AMA,"Amarillo, TX",US/Central,Yes,2
+ACV,"Arcata/Eureka, CA",US/Pacific,Yes,4
+HTS,"Ashland, WV",US/Eastern,Yes,1
+ASE,"Aspen, CO",US/Mountain,Yes,3
+BFL,"Bakersfield, CA",US/Pacific,Yes,4
+BLI,"Bellingham, WA",US/Pacific,Yes,4
+BRO,"Brownsville, TX",US/Central,Yes,2
+CGI,"Cape Girardeau, MO",US/Central,Yes,2
+CMI,"Champaign/Urbana, IL",US/Central,Yes,2
+CKB,"Clarksburg/Fairmont, WV",US/Eastern,Yes,1
+COD,"Cody, WY",US/Mountain,Yes,3
+CLL,"College Station/Bryan, TX",US/Central,Yes,2
+COU,"Columbia, MO",US/Central,Yes,2
+CRP,"Corpus Christi, TX",US/Central,Yes,2
+DIK,"Dickinson, ND",US/Central,Yes,2
+DRO,"Durango, CO",US/Mountain,Yes,3
+EGE,"Eagle, CO",US/Mountain,Yes,3
+EAU,"Eau Claire, WI",US/Central,Yes,2
+ERI,"Erie, PA",US/Eastern,Yes,1
+FNT,"Flint, MI",US/Eastern,Yes,1
+FSM,"Fort Smith, AR",US/Central,Yes,2
+GCC,"Gillette, WY",US/Mountain,Yes,3
+GRI,"Grand Island, NE",US/Central,Yes,2
+GJT,"Grand Junction, CO",US/Mountain,Yes,3
+GUC,"Gunnison, CO",US/Mountain,Yes,3
+CMX,"Hancock/Houghton, MI",US/Eastern,Yes,1
+HRL,"Harlingen/San Benito, TX",US/Central,Yes,2
+HDN,"Hayden, CO",US/Mountain,Yes,3
+HYS,"Hays, KS",US/Central,Yes,2
+HOB,"Hobbs, NM",US/Mountain,Yes,3
+ISP,"Islip, NY",US/Eastern,Yes,1
+JMS,"Jamestown, ND",US/Central,Yes,2
+GRK,"Killeen, TX",US/Central,Yes,2
+LCH,"Lake Charles, LA",US/Central,Yes,2
+LAR,"Laramie, WY",US/Mountain,Yes,3
+LRD,"Laredo, TX",US/Central,Yes,2
+LNK,"Lincoln, NE",US/Central,Yes,2
+LBB,"Lubbock, TX",US/Central,Yes,2
+MHT,"Manchester, NH",US/Eastern,Yes,1
+MFE,"Mission/McAllen/Edinburg, TX",US/Central,Yes,2
+MRY,"Monterey, CA",US/Pacific,Yes,4
+MTJ,"Montrose/Delta, CO",US/Mountain,Yes,3
+MKG,"Muskegon, MI",US/Eastern,Yes,1
+EWN,"New Bern/Morehead/Beaufort, NC",US/Eastern,Yes,1
+SWF,"Newburgh/Poughkeepsie, NY",US/Eastern,Yes,1
+PHF,"Newport News/Williamsburg, VA",US/Eastern,Yes,1
+OTH,"North Bend/Coos Bay, OR",US/Pacific,Yes,4
+PAH,"Paducah, KY",US/Eastern,Yes,1
+PIA,"Peoria, IL",US/Central,Yes,2
+PUB,"Pueblo, CO",US/Mountain,Yes,3
+PUW,"Pullman, WA",US/Pacific,Yes,4
+RDD,"Reading, CA",US/Pacific,Yes,4
+RKS,"Rock Springs, WY",US/Mountain,Yes,3
+SBP,"San Luis Obispo, CA",US/Pacific,Yes,4
+SBA,"Santa Barbara, CA",US/Pacific,Yes,4
+SAF,"Santa Fe, NM",US/Mountain,Yes,3
+SMX,"Santa Maria, CA",US/Pacific,Yes,4
+STS,"Santa Rosa, CA",US/Pacific,Yes,4
+BFF,"Scottsbluff, NE",US/Central,Yes,2
+AVP,"Scranton/Wilkes-Barre, PA",US/Eastern,Yes,1
+SPI,"Springfield, IL",US/Central,Yes,2
+SCK,"Stockton, CA",US/Pacific,Yes,4
+TOL,"Toledo, OH",US/Eastern,Yes,1
+ALW,"Walla Walla, WA",US/Pacific,Yes,4
+EAT,"Wenatchee, WA",US/Pacific,Yes,4
+YKM,"Yakima, WA",US/Pacific,Yes,4
 ABE,"Allentown/Bethlehem/Easton, PA",US/Eastern,Yes,1
-XWA,"Williston, ND",US/Central,Yes,2
-ESC,"Escanaba, MI",US/Eastern,Yes,1
-INL,"International Falls, MN",US/Central,Yes,2
-CNY,"Moab, UT",US/Mountain,Yes,3
-SGU,"St. George, UT",US/Mountain,Yes,3
-BRD,"Brainerd, MN",US/Central,Yes,2
+ABQ,"Albuquerque, NM",US/Mountain,Yes,3
 ABR,"Aberdeen, SD",US/Central,Yes,2
+ABY,"Albany, GA",US/Eastern,Yes,1
+ACK,"Nantucket, MA",US/Eastern,Yes,1
+AEX,"Alexandria, LA",US/Central,Yes,2
+AGS,"Augusta, GA",US/Eastern,Yes,1
+ALB,"Albany, NY",US/Eastern,Yes,1
+ANC,"Anchorage, AK",US/Alaska,Yes,5
 APN,"Alpena, MI",US/Eastern,Yes,1
-CIU,"Sault Ste. Marie, MI",US/Eastern,Yes,1
-TWF,"Twin Falls, ID",US/Mountain,Yes,3
-HIB,"Hibbing, MN",US/Central,Yes,2
-RHI,"Rhinelander, WI",US/Central,Yes,2
-IMT,"Iron Mountain/Kingsfd, MI",US/Central,Yes,2
-BTM,"Butte, MT",US/Mountain,Yes,3
-PLN,"Pellston, MI",US/Eastern,Yes,1
+ATL,"Atlanta, GA",US/Eastern,Yes,1
+ATW,"Appleton, WI",US/Central,Yes,2
+AUS,"Austin, TX",US/Central,Yes,2
+AVL,"Asheville, NC",US/Eastern,Yes,1
+AZO,"Kalamazoo, MI",US/Eastern,Yes,1
+BDL,"Hartford, CT",US/Eastern,Yes,1
+BGM,"Binghamton, NY",US/Eastern,Yes,1
+BGR,"Bangor, ME",US/Eastern,Yes,1
+BHM,"Birmingham, AL",US/Central,Yes,2
+BIL,"Billings, MT",US/Mountain,Yes,3
+BIS,"Bismarck/Mandan, ND",US/Central,Yes,2
 BJI,"Bemidji, MN",US/Central,Yes,2
+BMI,"Bloomington/Normal, IL",US/Central,Yes,2
+BNA,"Nashville, TN",US/Central,Yes,2
+BOI,"Boise, ID",US/Mountain,Yes,3
+BOS,"Boston, MA",US/Eastern,Yes,1
+BQK,"Brunswick, GA",US/Eastern,Yes,1
+BRD,"Brainerd, MN",US/Central,Yes,2
+BTM,"Butte, MT",US/Mountain,Yes,3
+BTR,"Baton Rouge, LA",US/Central,Yes,2
+BTV,"Burlington, VT",US/Eastern,Yes,1
+BUF,"Buffalo, NY",US/Eastern,Yes,1
+BUR,"Burbank, CA",US/Pacific,Yes,4
+BWI,"Baltimore, MD",US/Eastern,Yes,1
+BZN,"Bozeman, MT",US/Mountain,Yes,3
+CAE,"Columbia, SC",US/Eastern,Yes,1
 CDC,"Cedar City, UT",US/Mountain,Yes,3
-WYS,"West Yellowstone, MT",US/Mountain,Yes,3
+CHA,"Chattanooga, TN",US/Eastern,Yes,1
+CHO,"Charlottesville, VA",US/Eastern,Yes,1
+CHS,"Charleston, SC",US/Eastern,Yes,1
+CID,"Cedar Rapids/Iowa City, IA",US/Central,Yes,2
+CIU,"Sault Ste. Marie, MI",US/Eastern,Yes,1
+CLE,"Cleveland, OH",US/Eastern,Yes,1
+CLT,"Charlotte, NC",US/Eastern,Yes,1
+CMH,"Columbus, OH",US/Eastern,Yes,1
+CNY,"Moab, UT",US/Mountain,Yes,3
+COS,"Colorado Springs, CO",US/Mountain,Yes,3
 CPR,"Casper, WY",US/Mountain,Yes,3
-EKO,"Elko, NV",US/Pacific,Yes,4
-PIH,"Pocatello, ID",US/Mountain,Yes,3
-ITH,"Ithaca/Cortland, NY",US/Eastern,Yes,1
-ELM,"Elmira/Corning, NY",US/Eastern,Yes,1
-SCE,"State College, PA",US/Eastern,Yes,1
-MDT,"Harrisburg, PA",US/Eastern,Yes,1
-SGF,"Springfield, MO",US/Central,Yes,2
-KTN,"Ketchikan, AK",US/Alaska,Yes,5
+CRW,"Charleston/Dunbar, WV",US/Eastern,Yes,1
+CSG,"Columbus, GA",US/Eastern,Yes,1
+CVG,"Cincinnati, OH",US/Eastern,Yes,1
+CWA,"Mosinee, WI",US/Central,Yes,2
+DAB,"Daytona Beach, FL",US/Eastern,Yes,1
 DAL,"Dallas, TX",US/Central,Yes,2
-FAI,"Fairbanks, AK",US/Central,Yes,2
+DAY,"Dayton, OH",US/Eastern,Yes,1
+DCA,"Washington, DC",US/Eastern,Yes,1
+DEN,"Denver, CO",US/Mountain,Yes,3
+DFW,"Dallas/Fort Worth, TX",US/Central,Yes,2
+DHN,"Dothan, AL",US/Central,Yes,2
+DLH,"Duluth, MN",US/Central,Yes,2
+DSM,"Des Moines, IA",US/Central,Yes,2
+DTW,"Detroit, MI",US/Eastern,Yes,1
+ECP,"Panama City, FL",US/Eastern,Yes,1
+EKO,"Elko, NV",US/Pacific,Yes,4
+ELM,"Elmira/Corning, NY",US/Eastern,Yes,1
 ELP,"El Paso, TX",US/Mountain,Yes,3
-JNU,"Juneau, AK",US/Alaska,Yes,5
+ESC,"Escanaba, MI",US/Eastern,Yes,1
+EUG,"Eugene, OR",US/Pacific,Yes,4
+EVV,"Evansville, IN",US/Central,Yes,2
+EWR,"Newark, NJ",US/Eastern,Yes,1
 EYW,"Key West, FL",US/Eastern,Yes,1
-STX,"Christiansted, VI",America/Virgin,No,0
+FAI,"Fairbanks, AK",US/Alaska,Yes,5
+FAR,"Fargo, ND",US/Central,Yes,2
+FAT,"Fresno, CA",US/Pacific,Yes,4
+FAY,"Fayetteville, NC",US/Eastern,Yes,1
+FCA,"Kalispell, MT",US/Mountain,Yes,3
+FLL,"Fort Lauderdale, FL",US/Eastern,Yes,1
+FSD,"Sioux Falls, SD",US/Central,Yes,2
+FWA,"Fort Wayne, IN",US/Eastern,Yes,1
+GEG,"Spokane, WA",US/Pacific,Yes,4
+GFK,"Grand Forks, ND",US/Central,Yes,2
+GNV,"Gainesville, FL",US/Eastern,Yes,1
+GPT,"Gulfport/Biloxi, MS",US/Central,Yes,2
+GRB,"Green Bay, WI",US/Central,Yes,2
+GRR,"Grand Rapids, MI",US/Eastern,Yes,1
+GSO,"Greensboro/High Point, NC",US/Eastern,Yes,1
+GSP,"Greer, SC",US/Eastern,Yes,1
+GTF,"Great Falls, MT",US/Mountain,Yes,3
+GTR,"Columbus, MS",US/Central,Yes,2
+HHH,"Hilton Head, SC",US/Eastern,Yes,1
+HIB,"Hibbing, MN",US/Central,Yes,2
+HLN,"Helena, MT",US/Mountain,Yes,3
+HNL,"Honolulu, HI",US/Hawaii,No,6
 HOU,"Houston, TX",US/Central,Yes,2
-VPS,"Valparaiso, FL",US/Eastern,Yes,1
+HPN,"White Plains, NY",US/Eastern,Yes,1
+HSV,"Huntsville, AL",US/Central,Yes,2
+IAD,"Washington, DC",US/Eastern,Yes,1
+IAH,"Houston, TX",US/Central,Yes,2
+ICT,"Wichita, KS",US/Central,Yes,2
+IDA,"Idaho Falls, ID",US/Mountain,Yes,3
+ILM,"Wilmington, NC",US/Eastern,Yes,1
+IMT,"Iron Mountain/Kingsfd, MI",US/Central,Yes,2
+IND,"Indianapolis, IN",US/Eastern,Yes,1
+INL,"International Falls, MN",US/Central,Yes,2
+ITH,"Ithaca/Cortland, NY",US/Eastern,Yes,1
+JAC,"Jackson, WY",US/Mountain,Yes,3
+JAN,"Jackson/Vicksburg, MS",US/Central,Yes,2
+JAX,"Jacksonville, FL",US/Eastern,Yes,1
+JFK,"New York, NY",US/Eastern,Yes,1
+JNU,"Juneau, AK",US/Alaska,Yes,5
+KOA,"Kona, HI",US/Hawaii,No,6
+KTN,"Ketchikan, AK",US/Alaska,Yes,5
+LAN,"Lansing, MI",US/Eastern,Yes,1
+LAS,"Las Vegas, NV",US/Pacific,Yes,4
+LAX,"Los Angeles, CA",US/Pacific,Yes,4
+LEX,"Lexington, KY",US/Eastern,Yes,1
+LFT,"Lafayette, LA",US/Central,Yes,2
+LGA,"New York, NY",US/Eastern,Yes,1
+LGB,"Long Beach, CA",US/Pacific,Yes,4
 LIH,"Lihue, HI",US/Hawaii,No,6
+LIT,"Little Rock, AR",US/Central,Yes,2
+LSE,"La Crosse, WI",US/Central,Yes,2
+LWS,"Lewiston, ID",US/Pacific,Yes,4
+MAF,"Midland/Odessa, TX",US/Central,Yes,2
+MBS,"Saginaw/Bay City/Midland, MI",US/Eastern,Yes,1
+MCI,"Kansas City, MO",US/Central,Yes,2
+MCO,"Orlando, FL",US/Eastern,Yes,1
+MDT,"Harrisburg, PA",US/Eastern,Yes,1
+MDW,"Chicago, IL",US/Central,Yes,2
+MEM,"Memphis, TN",US/Central,Yes,2
+MFR,"Medford, OR",US/Pacific,Yes,4
+MGM,"Montgomery, AL",US/Central,Yes,2
+MIA,"Miami, FL",US/Eastern,Yes,1
+MKE,"Milwaukee, WI",US/Central,Yes,2
+MLB,"Melbourne, FL",US/Eastern,Yes,1
+MLI,"Moline, IL",US/Central,Yes,2
+MLU,"Monroe, LA",US/Central,Yes,2
+MOB,"Mobile, AL",US/Central,Yes,2
+MOT,"Minot, ND",US/Central,Yes,2
+MQT,"Marquette, MI",US/Eastern,Yes,1
+MSN,"Madison, WI",US/Central,Yes,2
+MSO,"Missoula, MT",US/Mountain,Yes,3
+MSP,"Minneapolis, MN",US/Central,Yes,2
+MSY,"New Orleans, LA",US/Central,Yes,2
+MVY,"Martha's Vineyard, MA",US/Eastern,Yes,1
+MYR,"Myrtle Beach, SC",US/Eastern,Yes,1
+OAJ,"Jacksonville/Camp Lejeune, NC",US/Eastern,Yes,1
+OAK,"Oakland, CA",US/Pacific,Yes,4
+OGG,"Kahului, HI",US/Hawaii,No,6
+OKC,"Oklahoma City, OK",US/Central,Yes,2
+OMA,"Omaha, NE",US/Central,Yes,2
+ONT,"Ontario, CA",US/Pacific,Yes,4
+ORD,"Chicago, IL",US/Central,Yes,2
+ORF,"Norfolk, VA",US/Eastern,Yes,1
+ORH,"Worcester, MA",US/Eastern,Yes,1
+PBI,"West Palm Beach/Palm Beach, FL",US/Eastern,Yes,1
+PDX,"Portland, OR",US/Pacific,Yes,4
+PHL,"Philadelphia, PA",US/Eastern,Yes,1
+PHX,"Phoenix, AZ",US/Arizona,No,3
+PIH,"Pocatello, ID",US/Mountain,Yes,3
+PIT,"Pittsburgh, PA",US/Eastern,Yes,1
+PLN,"Pellston, MI",US/Eastern,Yes,1
+PNS,"Pensacola, FL",US/Eastern,Yes,1
+PSC,"Pasco/Kennewick/Richland, WA",US/Pacific,Yes,4
+PSP,"Palm Springs, CA",US/Pacific,Yes,4
+PVD,"Providence, RI",US/Eastern,Yes,1
+PWM,"Portland, ME",US/Eastern,Yes,1
+RAP,"Rapid City, SD",US/Mountain,Yes,3
+RDM,"Bend/Redmond, OR",US/Pacific,Yes,4
+RDU,"Raleigh/Durham, NC",US/Eastern,Yes,1
+RHI,"Rhinelander, WI",US/Central,Yes,2
+RIC,"Richmond, VA",US/Eastern,Yes,1
+RNO,"Reno, NV",US/Pacific,Yes,4
+ROA,"Roanoke, VA",US/Eastern,Yes,1
+ROC,"Rochester, NY",US/Eastern,Yes,1
+RST,"Rochester, MN",US/Central,Yes,2
+RSW,"Fort Myers, FL",US/Eastern,Yes,1
+SAN,"San Diego, CA",US/Pacific,Yes,4
+SAT,"San Antonio, TX",US/Central,Yes,2
+SAV,"Savannah, GA",US/Eastern,Yes,1
+SBN,"South Bend, IN",US/Eastern,Yes,1
+SCE,"State College, PA",US/Eastern,Yes,1
+SDF,"Louisville, KY",US/Eastern,Yes,1
+SEA,"Seattle, WA",US/Pacific,Yes,4
+SFO,"San Francisco, CA",US/Pacific,Yes,4
+SGF,"Springfield, MO",US/Central,Yes,2
+SGU,"St. George, UT",US/Mountain,Yes,3
+SHV,"Shreveport, LA",US/Central,Yes,2
+SIT,"Sitka, AK",US/Alaska,Yes,5
+SJC,"San Jose, CA",US/Pacific,Yes,4
+SJU,"San Juan, PR",America/Puerto_Rico,No,0
+SLC,"Salt Lake City, UT",US/Mountain,Yes,3
+SMF,"Sacramento, CA",US/Pacific,Yes,4
+SNA,"Santa Ana, CA",US/Pacific,Yes,4
+SRQ,"Sarasota/Bradenton, FL",US/Eastern,Yes,1
+STL,"St. Louis, MO",US/Central,Yes,2
+STT,"Charlotte Amalie, VI",America/Virgin,No,0
+STX,"Christiansted, VI",America/Virgin,No,0
+SUN,"Sun Valley/Hailey/Ketchum, ID",US/Mountain,Yes,3
+SYR,"Syracuse, NY",US/Eastern,Yes,1
+TLH,"Tallahassee, FL",US/Eastern,Yes,1
+TPA,"Tampa, FL",US/Eastern,Yes,1
+TRI,"Bristol/Johnson City/Kingsport, TN",US/Eastern,Yes,1
+TUL,"Tulsa, OK",US/Central,Yes,2
+TUS,"Tucson, AZ",US/Arizona,No,3
+TVC,"Traverse City, MI",US/Eastern,Yes,1
+TWF,"Twin Falls, ID",US/Mountain,Yes,3
+TYS,"Knoxville, TN",US/Eastern,Yes,1
+VLD,"Valdosta, GA",US/Eastern,Yes,1
+VPS,"Valparaiso, FL",US/Eastern,Yes,1
+WYS,"West Yellowstone, MT",US/Mountain,Yes,3
+XNA,"Fayetteville, AR",US/Central,Yes,2
+XWA,"Williston, ND",US/Central,Yes,2

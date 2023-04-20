@@ -73,12 +73,17 @@ class FlightQueryHandler(RequestHandler):
     dnl = listToString(self.get_arguments('dnl'))
     ane = listToString(self.get_arguments('ane'))
     anl = listToString(self.get_arguments('anl'))
+    anedate = listToString(self.get_arguments('anedate'))
     anldate = listToString(self.get_arguments('anldate'))
 
     ## post-process date to remove any leading zeroes in month or day column
     tmp = date_flight.split('/')
     mo, day, year = tmp[0].lstrip("0"), tmp[1].lstrip("0"), tmp[2]
     date_flight = mo + '/' + day + '/' + year
+
+    tmp = anedate.split('/')
+    mo, day, year = tmp[0].lstrip("0"), tmp[1].lstrip("0"), tmp[2]
+    anedate = mo + '/' + day + '/' + year
 
     tmp = anldate.split('/')
     mo, day, year = tmp[0].lstrip("0"), tmp[1].lstrip("0"), tmp[2]
@@ -92,11 +97,12 @@ class FlightQueryHandler(RequestHandler):
     print(dnl)
     print(ane)
     print(anl)
+    print(anedate)
     print(anldate)
 
     print("Getting Flights for: -" + origin + "-" + dest + "-" + date_flight + "-" + str(minlayover) + "-")
      
-    df=itineraryBuilder('faa_2019_12', origin, dest, date_flight, anldate,\
+    df=itineraryBuilder('faa_2019_12', origin, dest, date_flight, anedate, anldate,\
                         minlayover,\
                         dep_no_earlier = dne,\
                         dep_no_later = dnl,\

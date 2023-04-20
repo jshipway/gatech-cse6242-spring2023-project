@@ -39,6 +39,7 @@
         depart_no_later = document.getElementById("departing_range").getAttribute("data-no_later")
         arrive_no_earlier = document.getElementById("arriving_range").getAttribute("data-no_earlier")
         arrive_no_later = document.getElementById("arriving_range").getAttribute("data-no_later")
+        arrive_no_earlier_date = document.getElementById("arriving_range").getAttribute("data-earliest_date")
         arrive_no_later_date = document.getElementById("arriving_range").getAttribute("data-latest_date")
 
         console.log("searching...");
@@ -49,12 +50,13 @@
         console.log(depart_no_later)
         console.log(arrive_no_earlier)
         console.log(arrive_no_later)
+        console.log(arrive_no_earlier_date)
         console.log(arrive_no_later_date)
 
         tripheader = document.getElementById("trip_header");
         tripheader.innerHTML = "Flying from " + depart_text + " to " + arrive_text + " on " + depart_date  + ", connecting through the following cities"; 
         document.getElementById("order_by").selectedIndex = 0;
-        showFlights(depart, arrive, depart_date, min_connect_time, order_text, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later, arrive_no_later_date);       
+        showFlights(depart, arrive, depart_date, min_connect_time, order_text, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later, arrive_no_earlier_date, arrive_no_later_date);       
     }
 
     $(document).ready(function(){
@@ -84,10 +86,10 @@
       });
     }
 
-    function showFlights(depart, arrive, date, connect_time, order, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later_time, arrive_no_later_date) {        
+    function showFlights(depart, arrive, date, connect_time, order, depart_no_earlier, depart_no_later, arrive_no_earlier, arrive_no_later_time, arrive_no_earlier_date, arrive_no_later_date) {        
         url = "flights?origin=" + depart + "&dest=" + arrive + "&date=" + date + "&connect_time=" + connect_time 
         + "&order=" + order + "&dne=" + depart_no_earlier + "&dnl=" + depart_no_later + "&ane=" + arrive_no_earlier + "&anl=" + arrive_no_later
-        + "&anldate=" + arrive_no_later_date;
+        + "&anedate=" + arrive_no_earlier_date + "&anldate=" + arrive_no_later_date;
 
         encodedUri = encodeURI(url);
         $.get(encodedUri, function( data ) {
@@ -189,6 +191,7 @@
       const ib_formatDate = d3.timeFormat("%m/%d/%Y")
       var dne = ib_formatTime(t(slide1)).replace(/^0+/,'')
       var dnl = ib_formatTime(t(slide2)).replace(/^0+/,'')
+      var earliestDate = ib_formatDate(t(slide1)) // do not arrive earlier than this date
       var latestDate = ib_formatDate(t(slide2)) // do not arrive later than this date
 
       d3.select('#' + rangeID)
@@ -196,6 +199,7 @@
         .attr('data-no_earlier', dne)
         .attr('data-no_later', dnl)
         .attr('data-latest_date', latestDate)
+        .attr('data-earliest_date', earliestDate)
     }
 
 

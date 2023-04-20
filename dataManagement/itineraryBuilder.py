@@ -7,6 +7,7 @@ def itineraryBuilder(db_name: str,\
                     ORIG: str,\
                     DEST: str,\
                     DATE: str,\
+                    arr_no_earlier_date: str,\
                     arr_no_later_date: str,\
                     tc: int,\
                     dep_no_earlier = '1',\
@@ -44,7 +45,7 @@ def itineraryBuilder(db_name: str,\
     if orderby not in ['risk', 'duration', 'earliest_arrival', 'min_connection_time']:
         raise ValueError('Please order by either "risk", "duration", "earliest_arrival", or "min_connect_time".')
     
-    df = queryFlights(db_name, ORIG, DEST, DATE, arr_no_later_date, dep_no_earlier, dep_no_later, arr_no_earlier, arr_no_later)
+    df = queryFlights(db_name, ORIG, DEST, DATE, arr_no_earlier_date, arr_no_later_date, dep_no_earlier, dep_no_later, arr_no_earlier, arr_no_later)
 
     if df.shape[0] > 0:
         # only run the transformations below if flights are returned
@@ -96,14 +97,6 @@ def itineraryBuilder(db_name: str,\
         df['overnight_bool_1'] = pd.Series([arr < dept for (arr, dept) in first_leg_zip]).astype(int)
         df['overnight_bool_2'] = pd.Series([arr < dept for (arr, dept) in second_leg_zip]).astype(int)
         df['overnight_bool_3'] = pd.Series([arr < dept for (arr, dept) in next_best_zip]).astype(int)
-
-        #check to see if traveler is ok with trip extending to next day
-        '''if DATE == arr_no_later_date:
-            ## drop if date changed during either flight, or if the date changed between connection flights
-            df['overnight_connection'] = pd.Series(df['FIRST_LEG_DATE'] != df['SECOND_LEG_DATE'])
-
-            any_overnight = (df['overnight_bool_1'] + df['overnight_bool_2'] + df['overnight_connection']).astype('bool')
-            df = df.loc[any_overnight == False, :]'''
 
         df['FIRST_LEG_ARR_TIMESTAMP'] = df['FIRST_LEG_ARR_TIMESTAMP'] + df['overnight_bool_1'].astype('timedelta64[D]')
         df['SECOND_LEG_ARR_TIMESTAMP'] = df['SECOND_LEG_ARR_TIMESTAMP'] + df['overnight_bool_2'].astype('timedelta64[D]')
@@ -176,6 +169,7 @@ def queryFlights(db_name: str,\
                     ORIG: str,\
                     DEST: str,\
                     DATE: str,\
+                    arr_no_earlier_date: str,\
                     arr_no_later_date: str,\
                     dep_no_earlier = '1',\
                     dep_no_later = '2359',\
@@ -201,19 +195,34 @@ def queryFlights(db_name: str,\
     
     origin = "'" + ORIG + "'"
     destination = "'" + DEST + "'"
-    flight_date = "'" + DATE + "'"
+    flight_date_dep = "'" + DATE + "'"
+    next_date = "'" + getNextDate(DATE) + "'"
+    third_date = "'" + getNextDate(getNextDate(DATE)) + "'"
    
-    if DATE == arr_no_later_date:
-        # restrict the date range per user request
-         # we will need to assess the arrival time range after initial query
-        next_date = flight_date
-        third_date = getNextDate(DATE) #third date is needed for building next best itineraries only
-
-    else:
+    if DATE == arr_no_earlier_date and DATE != arr_no_later_date:
         # no need to restrict the date range
         # we will need to assess the arrival time range after initial query
-        next_date = "'" + getNextDate(DATE) + "'"
-        third_date = "'" + getNextDate(getNextDate(DATE)) + "'"
+        # we will return all flights in the subsequent 3 day period
+        arrival_dates = flight_date_dep + ", " + next_date + ", " + third_date
+    
+    elif DATE == arr_no_earlier_date and DATE == arr_no_later_date:
+        # restrict the date range per user request
+        # user is requesting to depart and arrive on day of original flight
+        # need to still include following day of flights for getNextBest()
+        # we will need to assess the arrival time range after initial query
+        arrival_dates = flight_date_dep + ", " + next_date
+
+    elif DATE != arr_no_earlier_date and DATE != arr_no_later_date:
+        # user is requesting to only arrive on the following day
+        # exclude all flights arriving on day of departure
+        # still leave the third day of flight arrivals in for getNextBest() 
+        arrival_dates = next_date + ", " + third_date
+    
+    else:
+        # should be possible with present slider set up in index.html
+        # trigger an error if any other condition occurs.
+        raise Exception("Impossible condition in queryFlights() initial query conditions.")
+
 
     conn = sqlite3.connect(db_name)
 
@@ -264,7 +273,7 @@ def queryFlights(db_name: str,\
                     WHERE
                         Origin = {origin} AND
                         Dest <> {destination} AND
-                        FlightDate = {flight_date} AND
+                        FlightDate = {flight_date_dep} AND
                         DepartureTime >= CAST({dep_no_earlier} AS INT) AND
                         DepartureTime <= CAST({dep_no_later} AS INT)) AS start,
                     (SELECT
@@ -280,7 +289,7 @@ def queryFlights(db_name: str,\
                     WHERE
                         Origin <> {origin} AND
                         Dest = {destination} AND
-                        FlightDate IN ({flight_date}, {next_date}, {third_date})) AS finish
+                        FlightDate IN ({arrival_dates})) AS finish
                 WHERE
                     FIRST_LEG_DEST = SECOND_LEG_ORIG AND
                     FIRST_LEG_AIRLINE = SECOND_LEG_AIRLINE
@@ -300,12 +309,33 @@ def queryFlights(db_name: str,\
     df_next_best = df_next_best[df_next_best['NEXT_BEST_SECOND_LEG_DATE'].notnull()]
 
     # now we need to apply the time filter
-    # no need if the two dates are equal, that was part of original query
-    # compare against original values for arr_no_earlier, arr_no_later
-    if DATE == arr_no_later_date:
+    if DATE == arr_no_earlier_date and DATE != arr_no_later_date:
+        # user is ok arriving on either day
+        # assess arr_no_earlier time for flights on first day
+        # assess arr_no_later time for flights on the second day
+        df_next_best = df_next_best[~(((df_next_best['SECOND_LEG_ARR_TIME']<int(arr_no_earlier)) & (df_next_best['SECOND_LEG_DATE'] == DATE)) | \
+                                    ((df_next_best['SECOND_LEG_ARR_TIME']>int(arr_no_later)) & (df_next_best['SECOND_LEG_DATE'] == next_date.strip("'"))))]
+        
+
+        #df_next_best = df_next_best[((df_next_best['SECOND_LEG_ARR_TIME']>int(arr_no_earlier)) | (df_next_best['SECOND_LEG_DATE'] != DATE)) | \
+        #                            ((df_next_best['SECOND_LEG_ARR_TIME']<int(arr_no_later)) | (df_next_best['SECOND_LEG_DATE'] == DATE))]
+    
+    elif DATE == arr_no_earlier_date and DATE == arr_no_later_date:
+        # user is requesting to depart and arrive on day of original flight
+        # assess both arr_no_earlier time and arr_no_later time on the first day
+        # exclude all flights from other days
         df_next_best = df_next_best[(df_next_best['SECOND_LEG_ARR_TIME'].between(int(arr_no_earlier), int(arr_no_later))) & (df_next_best['SECOND_LEG_DATE'] == DATE)]
+
+    elif DATE != arr_no_earlier_date and DATE != arr_no_later_date:
+        # user is requesting to only arrive on the following day
+        # assess both arr_no_earlier time and arr_no_later time on the second day
+        # exclude all flights arriving on day of departure
+        df_next_best = df_next_best[(df_next_best['SECOND_LEG_ARR_TIME'].between(int(arr_no_earlier), int(arr_no_later))) & (df_next_best['SECOND_LEG_DATE'] == next_date.strip("'"))]
+    
     else:
-        df_next_best = df_next_best[(df_next_best['SECOND_LEG_ARR_TIME'].between(int(arr_no_earlier), int(arr_no_later))) | (df_next_best['SECOND_LEG_DATE'] == DATE)]
+        # should be possible with present slider set up in index.html
+        # trigger an error if any other condition occurs.
+        raise Exception("Impossible condition in queryFlights() final filtering.")
     
     df_next_best = df_next_best.astype({'NEXT_BEST_SECOND_LEG_DEP_TIME': 'int',\
                                         'NEXT_BEST_SECOND_LEG_ARR_TIME': 'int'})

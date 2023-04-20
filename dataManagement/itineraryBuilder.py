@@ -105,9 +105,13 @@ def itineraryBuilder(db_name: str,\
         df['FIRST_FLIGHT_DURATION'] = df.apply(lambda x: x['FIRST_LEG_ARR_TIMESTAMP'] - x['FIRST_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
         df['SECOND_FLIGHT_DURATION'] = df.apply(lambda x: x['SECOND_LEG_ARR_TIMESTAMP'] - x['SECOND_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
         
-        df['CONNECT_TIME'] = (df.loc[:, 'SECOND_LEG_DEP_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
+        df['CONNECT_TIME'] = df.apply(lambda x: x['SECOND_LEG_DEP_TIMESTAMP'] - x['FIRST_LEG_ARR_TIMESTAMP'], axis=1).dt.total_seconds()/60
         
-        df['TRIP_TIME'] = (df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_DEP_TIMESTAMP']).dt.total_seconds()/60
+        #df['CONNECT_TIME'] = (df.loc[:, 'SECOND_LEG_DEP_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
+        
+        df['TRIP_TIME'] = df.apply(lambda x: x['SECOND_LEG_ARR_TIMESTAMP'] - x['FIRST_LEG_DEP_TIMESTAMP'], axis=1).dt.total_seconds()/60
+        
+        #df['TRIP_TIME'] = (df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'FIRST_LEG_DEP_TIMESTAMP']).dt.total_seconds()/60
 
         df = df.loc[df.loc[:, 'CONNECT_TIME'].between(tc, max_tc)]
 
@@ -120,7 +124,9 @@ def itineraryBuilder(db_name: str,\
 
         df['RISK_MISSED_CONNECTION'] = risks_to_apply
 
-        df['NEXT_FLIGHT_TIMELOSS'] = (df.loc[:, 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
+        df['NEXT_FLIGHT_TIMELOSS'] = df.apply(lambda x: x['NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] - x['SECOND_LEG_ARR_TIMESTAMP'], axis=1).dt.total_seconds()/60
+
+        #df['NEXT_FLIGHT_TIMELOSS'] = (df.loc[:, 'NEXT_BEST_SECOND_LEG_ARR_TIMESTAMP'] - df.loc[:, 'SECOND_LEG_ARR_TIMESTAMP']).dt.total_seconds()/60
 
         df['TOTAL_RISK'] = df.loc[:, 'RISK_MISSED_CONNECTION'] * df.loc[:, 'NEXT_FLIGHT_TIMELOSS']
 
